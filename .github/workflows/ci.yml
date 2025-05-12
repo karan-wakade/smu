@@ -18,11 +18,27 @@ jobs:
           node-version: "18"
           cache: "npm"
 
-      - name: Install frontend dependencies
-        run: cd frontend && npm ci
+      - name: Install and test frontend
+        run: |
+          # Make a temporary copy inside container
+          mkdir -p /tmp/frontend
+          cp -r frontend/* /tmp/frontend/
+          cd /tmp/frontend
 
-      - name: Run frontend tests
-        run: cd frontend && npm test
+          # Run operations on the copy (not on mounted Windows volume)
+          npm ci
+          npm test -- --watchAll=false --ci
+
+      # - name: Install frontend dependencies
+      #   run: |
+      #     cd frontend
+      #     mkdir -p node_modules_tmp
+      #     npm ci --cache /tmp/npm-cache --prefer-offline
+      #   env:
+      #     npm_config_cache: /tmp/npm-cache
+
+      # - name: Run frontend tests
+      #   run: cd frontend && npm run test:ci
 
       - name: Install backend dependencies
         run: cd backend && npm ci
