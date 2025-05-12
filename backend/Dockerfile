@@ -4,4 +4,4 @@ COPY backend/package*.json ./
 RUN npm ci
 COPY backend/ ./
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "src/server.js"]
