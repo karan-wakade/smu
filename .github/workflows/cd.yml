@@ -100,7 +100,11 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
+          echo "Testing Kubernetes connection..."
+          kubectl config view --minify
           kubectl cluster-info
+          kubectl get nodes
+        shell: bash
 
       - name: Update image versions and start canary deployment
         run: |
