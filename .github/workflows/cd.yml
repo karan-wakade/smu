@@ -118,6 +118,14 @@ jobs:
             kubectl config set-cluster kubernetes --server="${{ secrets.KUBE_API_URL }}" --insecure-skip-tls-verify=true
           fi
 
+      - name: Debug Kubernetes Configuration
+        run: |
+          echo "Debugging Kubernetes setup..."
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config || \
+            echo "::error::Failed to decode KUBE_CONFIG secret"
+          kubectl config view || echo "::error::Failed to view Kubernetes config"
+          kubectl config use-context kubernetes || echo "::error::Failed to set Kubernetes context"
+
       - name: Verify Kubernetes connection
         run: |
           echo "Verifying Kubernetes connection..."
