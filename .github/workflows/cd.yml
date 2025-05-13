@@ -97,11 +97,19 @@ jobs:
       - name: Set up Kubernetes configuration
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-          echo "Testing Kubernetes connection..."
-          kubectl config view --minify
+          # Validate config file structure
+          echo "Validating kubeconfig..."
+          kubectl config view
+
+          # Show current context
+          echo "Current context:"
+          kubectl config current-context
+
+          # Test cluster connection
+          echo "Testing cluster connection..."
           kubectl cluster-info
           kubectl get nodes
         shell: bash
