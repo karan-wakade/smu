@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: smu-app
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: smu-app
+  template:
+    metadata:
+      labels:
+        app: smu-app
+    spec:
+      containers:
+        - name: smu-app
+          image: ghcr.io/karan-wakade/smu:latest
+          ports:
+            - containerPort: 8080
+  strategy:
+    canary:
+      steps:
+        - setWeight: 20
+        - pause: { duration: 1m }
+        - setWeight: 40
+        - pause: { duration: 1m }
+        - setWeight: 60
+        - pause: { duration: 1m }
+        - setWeight: 80
+        - pause: { duration: 1m }
+      analysis:
+        templates:
+          - templateName: success-rate
+        startingStep: 2
