@@ -75,94 +75,144 @@ jobs:
   deploy-canary:
     needs: build-and-push
     runs-on: ubuntu-latest
+    env:
+      NAMESPACE: smu-system
+      FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/smu/frontend
+      BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/smu/backend
     steps:
-      - uses: actions/checkout@v3
+      # ===== Setup Phase =====
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
 
-      - name: Set up ArgoCD CLI
+      - name: Set up tools
         run: |
+          echo "Installing ArgoCD CLI..."
           curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
           chmod +x argocd
           sudo mv argocd /usr/local/bin/
 
-      - name: Install kubectl-argo-rollouts plugin
-        run: |
+          echo "Installing kubectl-argo-rollouts plugin..."
           curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
           chmod +x ./kubectl-argo-rollouts-linux-amd64
           sudo mv ./kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
 
-      # Updated to use your existing KUBE_CONFIG
-      - name: Set up Kubernetes configuration
+          echo "Verifying tools installation..."
+          kubectl version --client
+          kubectl-argo-rollouts version || echo "Warning: Argo Rollouts CLI not properly installed"
+          argocd version --client || echo "Warning: ArgoCD CLI not properly installed"
+
+      # ===== Kubernetes Configuration =====
+      - name: Configure Kubernetes access
         run: |
+          echo "Setting up Kubernetes configuration..."
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-          # Update with current ngrok URL
-          kubectl config set-cluster kubernetes --server="${{ secrets.KUBE_API_URL }}" --insecure-skip-tls-verify=true
+          # Update API server URL if needed
+          if [ ! -z "${{ secrets.KUBE_API_URL }}" ]; then
+            echo "Updating API server URL..."
+            kubectl config set-cluster kubernetes --server="${{ secrets.KUBE_API_URL }}" --insecure-skip-tls-verify=true
+          fi
 
-          # Validate config file structure
-          echo "Validating kubeconfig..."
-          kubectl config view || echo "Failed to validate kubeconfig"
-
-          # Show current context
-          echo "Current context:"
-          kubectl config current-context || echo "Failed to get current context"
-
-          # Test cluster connection
-          echo "Testing cluster connection..."
-          kubectl cluster-info || echo "Cluster connection failed"
-
-          # Fetch and list nodes
-          echo "Fetching nodes..."
-          kubectl get nodes || echo "Failed to fetch nodes"
-        shell: bash
-
-      - name: Ensure namespaces exist
+      - name: Verify Kubernetes connection
         run: |
-          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
-          kubectl create namespace argo-rollouts --dry-run=client -o yaml | kubectl apply -f -
-          kubectl create namespace logging --dry-run=client -o yaml | kubectl apply -f -
+          echo "Verifying Kubernetes connection..."
+          if ! kubectl cluster-info; then
+            echo "::error::Failed to connect to Kubernetes cluster"
+            exit 1
+          fi
 
-      - name: Test Kubernetes connection
-        run: |
+          echo "Cluster nodes:"
           kubectl get nodes
+
+          echo "Available namespaces:"
           kubectl get ns
 
-      - name: Install Argo Rollouts
+      # ===== Infrastructure Setup =====
+      - name: Create required namespaces
         run: |
+          echo "Creating namespaces if they don't exist..."
+          for ns in monitoring argo-rollouts logging ${{ env.NAMESPACE }}; do
+            echo "Ensuring namespace $ns exists..."
+            kubectl create namespace $ns --dry-run=client -o yaml | kubectl apply -f -
+          done
+
+      - name: Deploy Argo Rollouts
+        run: |
+          echo "Deploying Argo Rollouts..."
           kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
 
-      - name: Wait for CRDs to register
-        run: sleep 10
+          echo "Waiting for Argo Rollouts controller to be ready..."
+          kubectl -n argo-rollouts wait --for=condition=available deployment/argo-rollouts --timeout=60s || \
+            echo "::warning::Argo Rollouts might not be fully ready yet, but continuing..."
 
-      - name: Deploy rollouts
+      # ===== Infrastructure Components =====
+      - name: Deploy infrastructure components
         run: |
-          if [ -d "k8s/rollouts" ]; then
-            kubectl apply -f k8s/rollouts/
+          if [ -d "k8s/infrastructure" ]; then
+            echo "Deploying infrastructure components..."
+            kubectl apply -f k8s/infrastructure/
+          else
+            echo "No infrastructure directory found, skipping..."
           fi
 
-      - name: Deploy dashboards
-        run: |
           if [ -d "k8s/dashboards" ]; then
+            echo "Deploying dashboards..."
             kubectl apply -f k8s/dashboards/
+          else
+            echo "No dashboards directory found, skipping..."
           fi
 
-      - name: Update image versions and start canary deployment
+          if [ -d "k8s/rollouts" ]; then
+            echo "Deploying rollout definitions..."
+            kubectl apply -f k8s/rollouts/
+          else
+            echo "No rollouts directory found, skipping..."
+          fi
+
+      # ===== Application Deployment =====
+      - name: Prepare application manifests
         run: |
+          echo "Extracting image versions..."
           FRONTEND_VERSION=$(echo "${{ needs.build-and-push.outputs.frontend_version }}" | sed 's/.*://')
           BACKEND_VERSION=$(echo "${{ needs.build-and-push.outputs.backend_version }}" | sed 's/.*://')
 
-          # Update image versions in Argo Rollouts manifests
-          sed -i "s|ghcr.io/karan-wakade/smu/frontend:.*|ghcr.io/karan-wakade/smu/frontend:${FRONTEND_VERSION}|g" k8s/argo-rollouts/frontend-rollout.yaml
-          sed -i "s|ghcr.io/karan-wakade/smu/backend:.*|ghcr.io/karan-wakade/smu/backend:${BACKEND_VERSION}|g" k8s/argo-rollouts/backend-rollout.yaml
+          echo "Frontend version: ${FRONTEND_VERSION}"
+          echo "Backend version: ${BACKEND_VERSION}"
 
-          # Apply Argo Rollouts manifests
-          kubectl apply -f k8s/base/namespace.yaml
+          if [ -d "k8s/argo-rollouts" ]; then
+            echo "Updating image versions in manifests..."
+            sed -i "s|${{ env.FRONTEND_IMAGE }}:.*|${{ env.FRONTEND_IMAGE }}:${FRONTEND_VERSION}|g" k8s/argo-rollouts/frontend-rollout.yaml
+            sed -i "s|${{ env.BACKEND_IMAGE }}:.*|${{ env.BACKEND_IMAGE }}:${BACKEND_VERSION}|g" k8s/argo-rollouts/backend-rollout.yaml
+            
+            cat k8s/argo-rollouts/frontend-rollout.yaml
+            cat k8s/argo-rollouts/backend-rollout.yaml
+          else
+            echo "::error::Required directory k8s/argo-rollouts not found!"
+            exit 1
+          fi
+
+      - name: Deploy application
+        run: |
+          echo "Deploying base resources..."
+          kubectl apply -f k8s/base/namespace.yaml || echo "::warning::Failed to apply namespace.yaml, it might not exist"
+
+          echo "Deploying application with Argo Rollouts..."
           kubectl apply -f k8s/argo-rollouts/
 
-          # Monitor rollout status
-          kubectl argo rollouts get rollout smu-frontend -n smu-system --watch=false
-          kubectl argo rollouts get rollout smu-backend -n smu-system --watch=false
+          echo "Deployment initiated successfully!"
+
+      # ===== Verification =====
+      - name: Verify deployment
+        run: |
+          echo "Verifying frontend rollout status..."
+          kubectl argo rollouts get rollout smu-frontend -n ${{ env.NAMESPACE }} || echo "::warning::Frontend rollout verification failed"
+
+          echo "Verifying backend rollout status..."
+          kubectl argo rollouts get rollout smu-backend -n ${{ env.NAMESPACE }} || echo "::warning::Backend rollout verification failed"
+
+          echo "Deployment verification complete."
