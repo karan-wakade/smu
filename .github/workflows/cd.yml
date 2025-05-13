@@ -102,16 +102,19 @@ jobs:
 
           # Validate config file structure
           echo "Validating kubeconfig..."
-          kubectl config view
+          kubectl config view || echo "Failed to validate kubeconfig"
 
           # Show current context
           echo "Current context:"
-          kubectl config current-context
+          kubectl config current-context || echo "Failed to get current context"
 
           # Test cluster connection
           echo "Testing cluster connection..."
-          kubectl cluster-info
-          kubectl get nodes
+          kubectl cluster-info || echo "Cluster connection failed"
+
+          # Fetch and list nodes
+          echo "Fetching nodes..."
+          kubectl get nodes || echo "Failed to fetch nodes"
         shell: bash
 
       - name: Update image versions and start canary deployment

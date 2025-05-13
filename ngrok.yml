@@ -1,0 +1,5 @@
+authtoken: YOUR_AUTHTOKEN
+tunnels:
+  kubernetes:
+    proto: tcp
+    addr: 127.0.0.1:8443
