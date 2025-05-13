@@ -100,6 +100,8 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
+          kubectl cluster-info
+
       - name: Update image versions and start canary deployment
         run: |
           FRONTEND_VERSION=$(echo "${{ needs.build-and-push.outputs.frontend_version }}" | sed 's/.*://')
