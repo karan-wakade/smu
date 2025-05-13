@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-tuner
+  namespace: smu-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-tuner
+  template:
+    metadata:
+      labels:
+        app: ai-tuner
+    spec:
+      containers:
+        - name: ai-tuner
+          image: ghcr.io/karan-wakade/smu/ai-tuner:latest
+          env:
+            - name: PROMETHEUS_URL
+              value: http://prometheus-server.monitoring.svc.cluster.local:9090
+            - name: K8S_NAMESPACE
+              value: smu-system
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: tuner-config
+              mountPath: /app/config
+      volumes:
+        - name: tuner-config
+          configMap:
+            name: ai-tuner-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-tuner-config
+  namespace: smu-system
+data:
+  config.yaml: |
+    targets:
+      - name: frontend
+        deployment: smu-frontend
+        metrics:
+          - name: cpu_usage
+            min: 50m
+            max: 500m
+            target: 70
+          - name: memory_usage
+            min: 64Mi
+            max: 256Mi
+            target: 80
+      - name: backend
+        deployment: smu-backend
+        metrics:
+          - name: cpu_usage
+            min: 100m
+            max: 1000m
+            target: 70
+          - name: memory_usage
+            min: 128Mi
+            max: 512Mi
+            target: 80
+          - name: response_time
+            slo: 200ms
+    tuning:
+      frequency: 5m
+      window: 15m
+      algorithm: reinforcement
+      learning_rate: 0.1

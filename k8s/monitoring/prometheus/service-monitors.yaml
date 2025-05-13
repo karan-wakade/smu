@@ -1,0 +1,67 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: frontend-monitor
+  namespace: monitoring
+  labels:
+    app: frontend-monitor
+spec:
+  selector:
+    matchLabels:
+      app: smu-frontend
+  namespaceSelector:
+    matchNames:
+      - smu-system
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: "http_.*"
+          action: keep
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend-monitor
+  namespace: monitoring
+  labels:
+    app: backend-monitor
+spec:
+  selector:
+    matchLabels:
+      app: smu-backend
+  namespaceSelector:
+    matchNames:
+      - smu-system
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: "(http_.*|nodejs_.*|process_.*)"
+          action: keep
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ai-tuner-monitor
+  namespace: monitoring
+  labels:
+    app: ai-tuner-monitor
+spec:
+  selector:
+    matchLabels:
+      app: ai-tuner
+  namespaceSelector:
+    matchNames:
+      - smu-system
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

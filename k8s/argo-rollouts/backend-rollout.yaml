@@ -1,0 +1,125 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: smu-backend
+  namespace: smu-system
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: smu-backend
+  template:
+    metadata:
+      labels:
+        app: smu-backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "3000"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: backend
+          image: ghcr.io/karan-wakade/smu/backend:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['app.kubernetes.io/version']
+          volumeMounts:
+            - name: backend-config
+              mountPath: /usr/src/app/config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: backend-config
+          configMap:
+            name: backend-config
+  strategy:
+    canary:
+      # Canary service to route traffic to canary pods
+      canaryService: smu-backend-canary
+      # Stable service to route traffic to stable pods
+      stableService: smu-backend-stable
+      # Analysis to determine if rollout should continue
+      analysis:
+        templates:
+          - templateName: backend-success-rate
+        args:
+          - name: service-name
+            value: smu-backend-service
+      trafficRouting:
+        # Use Nginx for traffic splitting
+        nginx:
+          stableIngress: smu-ingress
+          # Annotations to add to the ingress
+          annotationPrefix: nginx.ingress.kubernetes.io
+      # Step-by-step rollout process
+      steps:
+        - setWeight: 20
+        - pause: { duration: 1m }
+        - analysis:
+            templates:
+              - templateName: backend-success-rate
+            args:
+              - name: service-name
+                value: smu-backend-canary
+        - setWeight: 40
+        - pause: { duration: 2m }
+        - setWeight: 60
+        - pause: { duration: 2m }
+        - setWeight: 80
+        - pause: { duration: 2m }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: backend-success-rate
+  namespace: smu-system
+spec:
+  metrics:
+    - name: success-rate
+      interval: 30s
+      count: 3
+      successCondition: result[0] >= 0.95
+      failureLimit: 2
+      provider:
+        prometheus:
+          address: http://prometheus-server.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(http_requests_total{service="{{ args.service-name }}",status!~"5.."}[2m])) / 
+            sum(rate(http_requests_total{service="{{ args.service-name }}"}[2m]))
+    - name: latency-p95
+      interval: 30s
+      count: 3
+      successCondition: result[0] <= 300
+      failureLimit: 2
+      provider:
+        prometheus:
+          address: http://prometheus-server.monitoring.svc.cluster.local:9090
+          query: |
+            histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{service="{{ args.service-name }}"}[2m])) by (le))

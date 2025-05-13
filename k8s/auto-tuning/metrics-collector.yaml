@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-collector
+  namespace: smu-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics-collector
+  template:
+    metadata:
+      labels:
+        app: metrics-collector
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: metrics-collector
+      containers:
+        - name: collector
+          image: ghcr.io/karan-wakade/smu/metrics-collector:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9090
+              name: metrics
+          env:
+            - name: PROMETHEUS_URL
+              value: http://prometheus-server.monitoring.svc.cluster.local:9090
+            - name: INTERVAL_SECONDS
+              value: "30"
+            - name: TARGET_NAMESPACES
+              value: "smu-system"
+            - name: METRICS_PORT
+              value: "9090"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: collector-config
+              mountPath: /app/config
+      volumes:
+        - name: collector-config
+          configMap:
+            name: metrics-collector-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-collector-config
+  namespace: smu-system
+data:
+  config.yaml: |
+    metrics:
+      cpu:
+        query: sum(rate(container_cpu_usage_seconds_total{namespace="smu-system",pod=~"smu-.*"}[5m])) by (pod)
+        description: "CPU usage per pod"
+      memory:
+        query: sum(container_memory_usage_bytes{namespace="smu-system",pod=~"smu-.*"}) by (pod)
+        description: "Memory usage per pod"
+      http_requests:
+        query: sum(rate(http_requests_total{namespace="smu-system"}[5m])) by (service, status)
+        description: "HTTP request count by service and status"
+      http_latency:
+        query: histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{namespace="smu-system"}[5m])) by (service, le))
+        description: "HTTP request latency (p95) by service"
+      error_rate:
+        query: sum(rate(http_requests_total{namespace="smu-system",status=~"5.."}[5m])) / sum(rate(http_requests_total{namespace="smu-system"}[5m]))
+        description: "Error rate across all services"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: metrics-collector
+  namespace: smu-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: metrics-collector-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["rollouts"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: metrics-collector-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: metrics-collector-role
+subjects:
+  - kind: ServiceAccount
+    name: metrics-collector
+    namespace: smu-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-collector
+  namespace: smu-system
+spec:
+  selector:
+    app: metrics-collector
+  ports:
+    - port: 9090
+      targetPort: 9090
+      name: metrics
+  type: ClusterIP

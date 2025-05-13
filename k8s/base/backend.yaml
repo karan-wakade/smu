@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: smu-backend-service
+  namespace: smu-system
+  labels:
+    app: smu-backend
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "3000"
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+  selector:
+    app: smu-backend
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: smu-system
+data:
+  config.json: |
+    {
+      "logLevel": "info",
+      "enableMetrics": true,
+      "database": {
+        "host": "mongodb",
+        "port": 27017,
+        "dbName": "smuapp",
+        "useAuth": false
+      },
+      "cors": {
+        "origin": "*",
+        "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+        "allowedHeaders": "Content-Type,Authorization"
+      }
+    }
