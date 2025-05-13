@@ -100,6 +100,9 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
+          # Update with current ngrok URL
+          kubectl config set-cluster kubernetes --server="${{ secrets.KUBE_API_URL }}" --insecure-skip-tls-verify=true
+
           # Validate config file structure
           echo "Validating kubeconfig..."
           kubectl config view || echo "Failed to validate kubeconfig"
@@ -116,6 +119,36 @@ jobs:
           echo "Fetching nodes..."
           kubectl get nodes || echo "Failed to fetch nodes"
         shell: bash
+
+      - name: Ensure namespaces exist
+        run: |
+          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace argo-rollouts --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace logging --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Test Kubernetes connection
+        run: |
+          kubectl get nodes
+          kubectl get ns
+
+      - name: Install Argo Rollouts
+        run: |
+          kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+
+      - name: Wait for CRDs to register
+        run: sleep 10
+
+      - name: Deploy rollouts
+        run: |
+          if [ -d "k8s/rollouts" ]; then
+            kubectl apply -f k8s/rollouts/
+          fi
+
+      - name: Deploy dashboards
+        run: |
+          if [ -d "k8s/dashboards" ]; then
+            kubectl apply -f k8s/dashboards/
+          fi
 
       - name: Update image versions and start canary deployment
         run: |
