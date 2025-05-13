@@ -46,10 +46,10 @@ spec:
         - pause: { duration: 1m }
         - setWeight: 80
         - pause: { duration: 1m }
-  service:
-    port: 80
-    targetPort: 80
-    name: http
+  # service:
+  #   port: 80
+  #   targetPort: 80
+  #   name: http
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
