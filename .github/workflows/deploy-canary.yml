@@ -29,6 +29,23 @@ jobs:
           # Show the kubeconfig content (redact sensitive information)
           Get-Content ".github\kubeconfig\config" | Write-Output
 
+      - name: Debug Kubeconfig File
+        shell: powershell
+        run: |
+          Write-Host "Checking the contents of the kubeconfig file:"
+          Get-Content "$env:TEMP\k8s-config" | Write-Output
+
+      - name: Update Kubeconfig Server Address
+        shell: powershell
+        run: |
+          # Copy the kubeconfig
+          Copy-Item -Path ".github\kubeconfig\config" -Destination "$env:TEMP\k8s-config" -Force
+
+          # Update the server address in the kubeconfig file
+          (Get-Content "$env:TEMP\k8s-config") -replace "server: .*", "server: https://127.0.0.1:58186" | Set-Content "$env:TEMP\k8s-config"
+
+          Write-Host "✅ Updated the kubeconfig file with the new server address."
+
       - name: Test Kubernetes API Endpoint
         shell: powershell
         run: |
