@@ -104,9 +104,9 @@ jobs:
 
       - name: Build and push canary image
         run: |
-          docker build -t ghcr.io/karan-wakade/smu:canary-${{ github.sha }} .
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login ghcr.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push ghcr.io/karan-wakade/smu:canary-${{ github.sha }}
+          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker build -t ghcr.io/karan-wakade/smu:canary-${{ github.sha }} ." -NoNewWindow -Wait -PassThru -Verb RunAs
+          Start-Process -FilePath "powershell" -ArgumentList "-Command", "echo ${{ secrets.DOCKER_PASSWORD }} | docker login ghcr.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin" -NoNewWindow -Wait -PassThru -Verb RunAs
+          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker push ghcr.io/karan-wakade/smu:canary-${{ github.sha }}" -NoNewWindow -Wait -PassThru -Verb RunAs
 
       - name: Deploy AI Tuner
         run: |
