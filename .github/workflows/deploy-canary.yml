@@ -12,6 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set PowerShell Execution Policy
+        run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
       - name: Verify Kubernetes Connection
         run: |
           # Copy the kubeconfig
