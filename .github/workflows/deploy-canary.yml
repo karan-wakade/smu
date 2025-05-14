@@ -14,7 +14,7 @@ jobs:
 
       - name: Set PowerShell Execution Policy
         run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
       - name: Verify Kubernetes Connection
         run: |
