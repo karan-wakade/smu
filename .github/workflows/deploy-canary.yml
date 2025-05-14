@@ -42,7 +42,7 @@ jobs:
           Copy-Item -Path ".github\kubeconfig\config" -Destination "$env:TEMP\k8s-config" -Force
 
           # Update the server address in the kubeconfig file
-          (Get-Content "$env:TEMP\k8s-config") -replace "server: .*", "server: https://127.0.0.1:58186" | Set-Content "$env:TEMP\k8s-config"
+          (Get-Content "$env:TEMP\k8s-config") -replace "server: .*", "server: https://127.0.0.1:55906/" | Set-Content "$env:TEMP\k8s-config"
 
           Write-Host "✅ Updated the kubeconfig file with the new server address."
 
