@@ -17,7 +17,7 @@ jobs:
           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
       - name: Verify Kubernetes Connection
-        shell: pwsh
+        shell: powershell
         run: |
           # Copy the kubeconfig
           Copy-Item -Path ".github\kubeconfig\config" -Destination "$env:TEMP\k8s-config" -Force
