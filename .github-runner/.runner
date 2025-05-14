@@ -1,9 +1,9 @@
 ﻿{
-  "agentId": 22,
-  "agentName": "Local-Minikube-Runner",
+  "agentId": 23,
+  "agentName": "LAPTOP-ABAC4THD",
   "poolId": 1,
   "poolName": "Default",
   "serverUrl": "https://pipelinesghubeus2.actions.githubusercontent.com/3ppGNk8qZU6qAGoHW5wTnvcTB5WFuZILPPDIwIRTI9IopRkzE8/",
   "gitHubUrl": "https://github.com/karan-wakade/smu",
-  "workFolder": "D:\\projects\\philips\\satmeup\\.github-runner\\_work"
+  "workFolder": "_work"
 }
