@@ -103,10 +103,16 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build and push canary image
+        shell: powershell
         run: |
-          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker build -t ghcr.io/karan-wakade/smu:canary-${{ github.sha }} ." -NoNewWindow -Wait -PassThru -Verb RunAs
-          Start-Process -FilePath "powershell" -ArgumentList "-Command", "echo ${{ secrets.DOCKER_PASSWORD }} | docker login ghcr.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin" -NoNewWindow -Wait -PassThru -Verb RunAs
-          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker push ghcr.io/karan-wakade/smu:canary-${{ github.sha }}" -NoNewWindow -Wait -PassThru -Verb RunAs
+          # Build the Docker image with elevated permissions
+          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker build -t ghcr.io/karan-wakade/smu:canary-${{ github.sha }} ." -Verb RunAs -Wait
+
+          # Log in to the Docker registry with elevated permissions
+          Start-Process -FilePath "powershell" -ArgumentList "-Command", "echo ${{ secrets.DOCKER_PASSWORD }} | docker login ghcr.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin" -Verb RunAs -Wait
+
+          # Push the Docker image with elevated permissions
+          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker push ghcr.io/karan-wakade/smu:canary-${{ github.sha }}" -Verb RunAs -Wait
 
       - name: Deploy AI Tuner
         run: |
