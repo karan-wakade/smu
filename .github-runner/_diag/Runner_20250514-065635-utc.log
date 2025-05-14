@@ -162,3 +162,548 @@
 [2025-05-14 12:00:14Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
 [2025-05-14 12:00:15Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
 [2025-05-14 12:01:06Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 12:20:59Z INFO MessageListener] Message '7816483562632930791' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 12:20:59Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 12:20:59Z INFO ConfigurationStore] stored True
+[2025-05-14 12:20:59Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 12:20:59Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 12:20:59Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 12:20:59Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:20:59Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:20:59Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:21:00Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:21:03Z INFO JobDispatcher] Job request 0 for plan 6d31e442-2b9d-4465-b612-76f31c3e6fd8 job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa received.
+[2025-05-14 12:21:03Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 12:21:03Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 12:21:03Z INFO Terminal] WRITE LINE: 2025-05-14 12:21:03Z: Running job: pre-deployment-check
+[2025-05-14 12:21:03Z INFO JobDispatcher] Start renew job request 0 for job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa.
+[2025-05-14 12:21:04Z INFO JobDispatcher] Successfully renew job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa, job is valid till 5/14/2025 12:31:04 PM
+[2025-05-14 12:21:04Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2368 2756'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 12:21:04Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 12:21:06Z INFO ProcessInvokerWrapper] Process started with process id 2848, waiting for process exit.
+[2025-05-14 12:21:06Z INFO JobDispatcher] Send job request message to worker for job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa.
+[2025-05-14 12:21:06Z INFO ProcessChannel] Sending message of length 20000, with hash 'b80163f25ff3452052d378690c430878302de5790bd6a5d4f55a502d305b000d'
+[2025-05-14 12:21:08Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 12:21:08Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 12:22:08Z INFO JobDispatcher] Successfully renew job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa, job is valid till 5/14/2025 12:32:07 PM
+[2025-05-14 12:23:08Z INFO JobDispatcher] Successfully renew job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa, job is valid till 5/14/2025 12:33:08 PM
+[2025-05-14 12:24:01Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:24:01Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:24:01Z INFO ProcessInvokerWrapper] Finished process 2848 with exit code 102, and elapsed time 00:02:57.4354822.
+[2025-05-14 12:24:01Z INFO JobDispatcher] Worker finished for job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa. Code: 102
+[2025-05-14 12:24:01Z INFO JobDispatcher] finish job request for job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa with result: Failed
+[2025-05-14 12:24:01Z INFO Terminal] WRITE LINE: 2025-05-14 12:24:01Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 12:24:01Z INFO JobDispatcher] Stop renew job request for job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa.
+[2025-05-14 12:24:01Z INFO JobDispatcher] job renew has been cancelled, stop renew job 50bc0eb1-3e81-565d-be14-e54f5f67ecaa.
+[2025-05-14 12:24:01Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 12:24:01Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 12:24:01Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 12:30:23Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:30:24Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:38:36Z INFO MessageListener] Message '8423044249177029741' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 12:38:36Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 12:38:36Z INFO ConfigurationStore] stored True
+[2025-05-14 12:38:36Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 12:38:36Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 12:38:36Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 12:38:36Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:38:37Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:38:37Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:38:38Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:38:40Z INFO JobDispatcher] Job request 0 for plan 87aae751-3ca6-49cd-a2fc-26d247ba1346 job 3f033cee-3262-53ec-a3fb-a7c2a85ed905 received.
+[2025-05-14 12:38:40Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 12:38:40Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 12:38:40Z INFO JobDispatcher] Job request 50bc0eb1-3e81-565d-be14-e54f5f67ecaa processed succeed.
+[2025-05-14 12:38:40Z INFO Terminal] WRITE LINE: 2025-05-14 12:38:40Z: Running job: pre-deployment-check
+[2025-05-14 12:38:40Z INFO JobDispatcher] Start renew job request 0 for job 3f033cee-3262-53ec-a3fb-a7c2a85ed905.
+[2025-05-14 12:38:42Z INFO JobDispatcher] Successfully renew job 3f033cee-3262-53ec-a3fb-a7c2a85ed905, job is valid till 5/14/2025 12:48:42 PM
+[2025-05-14 12:38:42Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2636 2604'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 12:38:42Z INFO ProcessInvokerWrapper] Process started with process id 3412, waiting for process exit.
+[2025-05-14 12:38:42Z INFO JobDispatcher] Send job request message to worker for job 3f033cee-3262-53ec-a3fb-a7c2a85ed905.
+[2025-05-14 12:38:42Z INFO ProcessChannel] Sending message of length 20004, with hash '94b97af5436282c7ef745c943d2978efb7c8e602944226ade2da06f8e1008fb3'
+[2025-05-14 12:38:45Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 12:38:45Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 12:39:42Z INFO JobDispatcher] Successfully renew job 3f033cee-3262-53ec-a3fb-a7c2a85ed905, job is valid till 5/14/2025 12:49:42 PM
+[2025-05-14 12:39:48Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:39:48Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:39:48Z INFO ProcessInvokerWrapper] Finished process 3412 with exit code 102, and elapsed time 00:01:06.0838770.
+[2025-05-14 12:39:48Z INFO JobDispatcher] Worker finished for job 3f033cee-3262-53ec-a3fb-a7c2a85ed905. Code: 102
+[2025-05-14 12:39:48Z INFO JobDispatcher] finish job request for job 3f033cee-3262-53ec-a3fb-a7c2a85ed905 with result: Failed
+[2025-05-14 12:39:48Z INFO Terminal] WRITE LINE: 2025-05-14 12:39:48Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 12:39:48Z INFO JobDispatcher] Stop renew job request for job 3f033cee-3262-53ec-a3fb-a7c2a85ed905.
+[2025-05-14 12:39:48Z INFO JobDispatcher] job renew has been cancelled, stop renew job 3f033cee-3262-53ec-a3fb-a7c2a85ed905.
+[2025-05-14 12:39:48Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 12:39:48Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 12:39:48Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 12:45:41Z INFO MessageListener] Message '8138535681688421951' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 12:45:41Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 12:45:41Z INFO ConfigurationStore] stored True
+[2025-05-14 12:45:41Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 12:45:41Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 12:45:41Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 12:45:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:45:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:45:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:45:45Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:45:45Z WARN GitHubActionsService] Retrieving an AAD auth token took a long time (4.0160636 seconds)
+[2025-05-14 12:45:49Z INFO JobDispatcher] Job request 0 for plan 2fe5bf85-82e0-4613-97c4-575a067b6b6c job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6 received.
+[2025-05-14 12:45:49Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 12:45:49Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 12:45:49Z INFO JobDispatcher] Job request 3f033cee-3262-53ec-a3fb-a7c2a85ed905 processed succeed.
+[2025-05-14 12:45:49Z INFO Terminal] WRITE LINE: 2025-05-14 12:45:49Z: Running job: pre-deployment-check
+[2025-05-14 12:45:49Z INFO JobDispatcher] Start renew job request 0 for job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6.
+[2025-05-14 12:45:50Z INFO JobDispatcher] Successfully renew job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6, job is valid till 5/14/2025 12:55:50 PM
+[2025-05-14 12:45:50Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2728 2904'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 12:45:50Z INFO ProcessInvokerWrapper] Process started with process id 23176, waiting for process exit.
+[2025-05-14 12:45:50Z INFO JobDispatcher] Send job request message to worker for job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6.
+[2025-05-14 12:45:50Z INFO ProcessChannel] Sending message of length 20002, with hash '0fc48389b51d54a9e9b6e5bea8603cdb2f9de28ea81766abe87089dfa715ccab'
+[2025-05-14 12:45:51Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 12:45:51Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 12:46:50Z INFO JobDispatcher] Successfully renew job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6, job is valid till 5/14/2025 12:56:50 PM
+[2025-05-14 12:47:03Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:47:03Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:47:03Z INFO ProcessInvokerWrapper] Finished process 23176 with exit code 102, and elapsed time 00:01:12.7121005.
+[2025-05-14 12:47:03Z INFO JobDispatcher] Worker finished for job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6. Code: 102
+[2025-05-14 12:47:03Z INFO JobDispatcher] finish job request for job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6 with result: Failed
+[2025-05-14 12:47:03Z INFO Terminal] WRITE LINE: 2025-05-14 12:47:03Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 12:47:03Z INFO JobDispatcher] Stop renew job request for job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6.
+[2025-05-14 12:47:03Z INFO JobDispatcher] job renew has been cancelled, stop renew job 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6.
+[2025-05-14 12:47:03Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 12:47:03Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 12:47:03Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 12:50:38Z INFO MessageListener] Message '1341577855398606476' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 12:50:38Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 12:50:38Z INFO ConfigurationStore] stored True
+[2025-05-14 12:50:38Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 12:50:38Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 12:50:38Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 12:50:38Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:50:38Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:50:38Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:50:39Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:50:41Z INFO JobDispatcher] Job request 0 for plan 0ed6067e-b271-4524-96f7-ccf526d989f9 job 8d4da40e-2b6b-5e35-956d-0ae197e7826f received.
+[2025-05-14 12:50:41Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 12:50:41Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 12:50:41Z INFO JobDispatcher] Job request 32b4f1d9-cc84-54c9-b34e-8e7f0bc20fe6 processed succeed.
+[2025-05-14 12:50:41Z INFO Terminal] WRITE LINE: 2025-05-14 12:50:41Z: Running job: pre-deployment-check
+[2025-05-14 12:50:41Z INFO JobDispatcher] Start renew job request 0 for job 8d4da40e-2b6b-5e35-956d-0ae197e7826f.
+[2025-05-14 12:50:42Z INFO JobDispatcher] Successfully renew job 8d4da40e-2b6b-5e35-956d-0ae197e7826f, job is valid till 5/14/2025 1:00:42 PM
+[2025-05-14 12:50:42Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 1380 1368'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 12:50:42Z INFO ProcessInvokerWrapper] Process started with process id 24988, waiting for process exit.
+[2025-05-14 12:50:42Z INFO JobDispatcher] Send job request message to worker for job 8d4da40e-2b6b-5e35-956d-0ae197e7826f.
+[2025-05-14 12:50:42Z INFO ProcessChannel] Sending message of length 20005, with hash 'ec573a1313de482936e9e6b041ac4b5011bb1b11501444c26216f31794c389b9'
+[2025-05-14 12:50:42Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:50:43Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 12:50:43Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 12:50:44Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:51:42Z INFO JobDispatcher] Successfully renew job 8d4da40e-2b6b-5e35-956d-0ae197e7826f, job is valid till 5/14/2025 1:01:42 PM
+[2025-05-14 12:52:07Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:52:07Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:52:07Z INFO ProcessInvokerWrapper] Finished process 24988 with exit code 102, and elapsed time 00:01:25.5470171.
+[2025-05-14 12:52:07Z INFO JobDispatcher] Worker finished for job 8d4da40e-2b6b-5e35-956d-0ae197e7826f. Code: 102
+[2025-05-14 12:52:07Z INFO JobDispatcher] finish job request for job 8d4da40e-2b6b-5e35-956d-0ae197e7826f with result: Failed
+[2025-05-14 12:52:07Z INFO Terminal] WRITE LINE: 2025-05-14 12:52:07Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 12:52:07Z INFO JobDispatcher] Stop renew job request for job 8d4da40e-2b6b-5e35-956d-0ae197e7826f.
+[2025-05-14 12:52:07Z INFO JobDispatcher] job renew has been cancelled, stop renew job 8d4da40e-2b6b-5e35-956d-0ae197e7826f.
+[2025-05-14 12:52:07Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 12:52:07Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 12:52:07Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 12:56:02Z INFO MessageListener] Message '5306678428596995032' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 12:56:02Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 12:56:02Z INFO ConfigurationStore] stored True
+[2025-05-14 12:56:02Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 12:56:02Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 12:56:02Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 12:56:02Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:56:02Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:56:02Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:56:03Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:56:05Z INFO JobDispatcher] Job request 0 for plan 13532bdf-addd-466f-85e1-e8ef445920a0 job 82a6117d-6d24-5d17-911e-8db22869bd4d received.
+[2025-05-14 12:56:05Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 12:56:05Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 12:56:05Z INFO JobDispatcher] Job request 8d4da40e-2b6b-5e35-956d-0ae197e7826f processed succeed.
+[2025-05-14 12:56:05Z INFO Terminal] WRITE LINE: 2025-05-14 12:56:05Z: Running job: pre-deployment-check
+[2025-05-14 12:56:05Z INFO JobDispatcher] Start renew job request 0 for job 82a6117d-6d24-5d17-911e-8db22869bd4d.
+[2025-05-14 12:56:06Z INFO JobDispatcher] Successfully renew job 82a6117d-6d24-5d17-911e-8db22869bd4d, job is valid till 5/14/2025 1:06:06 PM
+[2025-05-14 12:56:06Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2584 2668'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 12:56:06Z INFO ProcessInvokerWrapper] Process started with process id 23168, waiting for process exit.
+[2025-05-14 12:56:06Z INFO JobDispatcher] Send job request message to worker for job 82a6117d-6d24-5d17-911e-8db22869bd4d.
+[2025-05-14 12:56:06Z INFO ProcessChannel] Sending message of length 20411, with hash '3c87069305c43988db9f9f6a9d43f9206f9b41d6d4a95e257aab562eb9b2c8a1'
+[2025-05-14 12:56:07Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 12:56:07Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 12:56:40Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:56:40Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 12:56:40Z INFO ProcessInvokerWrapper] Finished process 23168 with exit code 102, and elapsed time 00:00:33.9058517.
+[2025-05-14 12:56:40Z INFO JobDispatcher] Worker finished for job 82a6117d-6d24-5d17-911e-8db22869bd4d. Code: 102
+[2025-05-14 12:56:40Z INFO JobDispatcher] finish job request for job 82a6117d-6d24-5d17-911e-8db22869bd4d with result: Failed
+[2025-05-14 12:56:40Z INFO Terminal] WRITE LINE: 2025-05-14 12:56:40Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 12:56:40Z INFO JobDispatcher] Stop renew job request for job 82a6117d-6d24-5d17-911e-8db22869bd4d.
+[2025-05-14 12:56:40Z INFO JobDispatcher] job renew has been cancelled, stop renew job 82a6117d-6d24-5d17-911e-8db22869bd4d.
+[2025-05-14 12:56:40Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 12:56:40Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 12:56:40Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 13:01:40Z INFO MessageListener] Message '1012376031826227661' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 13:01:40Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 13:01:40Z INFO ConfigurationStore] stored True
+[2025-05-14 13:01:40Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 13:01:40Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 13:01:40Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 13:01:40Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:01:40Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:01:40Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:01:41Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 13:01:43Z INFO JobDispatcher] Job request 0 for plan ab135af7-ef8c-4d6a-add9-4b6f7a410f1d job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3 received.
+[2025-05-14 13:01:43Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 13:01:43Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 13:01:43Z INFO JobDispatcher] Job request 82a6117d-6d24-5d17-911e-8db22869bd4d processed succeed.
+[2025-05-14 13:01:43Z INFO Terminal] WRITE LINE: 2025-05-14 13:01:43Z: Running job: pre-deployment-check
+[2025-05-14 13:01:43Z INFO JobDispatcher] Start renew job request 0 for job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3.
+[2025-05-14 13:01:44Z INFO JobDispatcher] Successfully renew job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3, job is valid till 5/14/2025 1:11:44 PM
+[2025-05-14 13:01:44Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2764 2508'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 13:01:44Z INFO ProcessInvokerWrapper] Process started with process id 2476, waiting for process exit.
+[2025-05-14 13:01:44Z INFO JobDispatcher] Send job request message to worker for job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3.
+[2025-05-14 13:01:44Z INFO ProcessChannel] Sending message of length 20422, with hash '2179b979bb9dfba41de75170edb8ce39b2236a4d54e5a6340dcf4be45c48edc1'
+[2025-05-14 13:01:46Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 13:01:46Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 13:02:20Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:02:20Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:02:20Z INFO ProcessInvokerWrapper] Finished process 2476 with exit code 102, and elapsed time 00:00:36.6386705.
+[2025-05-14 13:02:20Z INFO JobDispatcher] Worker finished for job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3. Code: 102
+[2025-05-14 13:02:20Z INFO JobDispatcher] finish job request for job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3 with result: Failed
+[2025-05-14 13:02:20Z INFO Terminal] WRITE LINE: 2025-05-14 13:02:20Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 13:02:20Z INFO JobDispatcher] Stop renew job request for job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3.
+[2025-05-14 13:02:20Z INFO JobDispatcher] job renew has been cancelled, stop renew job bd08c6b2-ab98-55f6-8a68-f0b41a4610f3.
+[2025-05-14 13:02:20Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 13:02:20Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 13:02:20Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 13:05:43Z INFO MessageListener] Message '5911958486246767120' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 13:05:43Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 13:05:43Z INFO ConfigurationStore] stored True
+[2025-05-14 13:05:43Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 13:05:43Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 13:05:43Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 13:05:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:05:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:05:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:05:44Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 13:05:47Z INFO JobDispatcher] Job request 0 for plan d4a08cbc-b532-41d0-b999-bbacc92a3d37 job 47b670c2-c324-5ea5-a0fb-f341bb993cef received.
+[2025-05-14 13:05:47Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 13:05:47Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 13:05:47Z INFO JobDispatcher] Job request bd08c6b2-ab98-55f6-8a68-f0b41a4610f3 processed succeed.
+[2025-05-14 13:05:47Z INFO Terminal] WRITE LINE: 2025-05-14 13:05:47Z: Running job: pre-deployment-check
+[2025-05-14 13:05:47Z INFO JobDispatcher] Start renew job request 0 for job 47b670c2-c324-5ea5-a0fb-f341bb993cef.
+[2025-05-14 13:05:48Z INFO JobDispatcher] Successfully renew job 47b670c2-c324-5ea5-a0fb-f341bb993cef, job is valid till 5/14/2025 1:15:48 PM
+[2025-05-14 13:05:48Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 1268 2512'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 13:05:48Z INFO ProcessInvokerWrapper] Process started with process id 22368, waiting for process exit.
+[2025-05-14 13:05:48Z INFO JobDispatcher] Send job request message to worker for job 47b670c2-c324-5ea5-a0fb-f341bb993cef.
+[2025-05-14 13:05:48Z INFO ProcessChannel] Sending message of length 20423, with hash 'bf1ab92ff7c2a2e3dbd593ed6ac0a1ace887c16b2ce54ad0a7f86e09a3b308d6'
+[2025-05-14 13:05:49Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 13:05:49Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 13:06:21Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:06:21Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:06:21Z INFO ProcessInvokerWrapper] Finished process 22368 with exit code 102, and elapsed time 00:00:32.8638762.
+[2025-05-14 13:06:21Z INFO JobDispatcher] Worker finished for job 47b670c2-c324-5ea5-a0fb-f341bb993cef. Code: 102
+[2025-05-14 13:06:21Z INFO JobDispatcher] finish job request for job 47b670c2-c324-5ea5-a0fb-f341bb993cef with result: Failed
+[2025-05-14 13:06:21Z INFO Terminal] WRITE LINE: 2025-05-14 13:06:21Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 13:06:21Z INFO JobDispatcher] Stop renew job request for job 47b670c2-c324-5ea5-a0fb-f341bb993cef.
+[2025-05-14 13:06:21Z INFO JobDispatcher] job renew has been cancelled, stop renew job 47b670c2-c324-5ea5-a0fb-f341bb993cef.
+[2025-05-14 13:06:21Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 13:06:21Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 13:06:21Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 13:26:10Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:26:11Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 13:36:21Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 13:39:50Z INFO MessageListener] Message '1774586233420482449' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 13:39:50Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 13:39:50Z INFO ConfigurationStore] stored True
+[2025-05-14 13:39:50Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 13:39:50Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 13:39:50Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 13:39:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:39:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:39:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:39:51Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 13:39:54Z INFO JobDispatcher] Job request 0 for plan fcd0dce1-0d1e-49d9-b771-87a7e9b583e9 job a96365a2-638e-5e3e-b1f0-6270144e4de6 received.
+[2025-05-14 13:39:54Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 13:39:54Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 13:39:54Z INFO JobDispatcher] Job request 47b670c2-c324-5ea5-a0fb-f341bb993cef processed succeed.
+[2025-05-14 13:39:54Z INFO Terminal] WRITE LINE: 2025-05-14 13:39:54Z: Running job: pre-deployment-check
+[2025-05-14 13:39:55Z INFO JobDispatcher] Start renew job request 0 for job a96365a2-638e-5e3e-b1f0-6270144e4de6.
+[2025-05-14 13:39:55Z INFO JobDispatcher] Successfully renew job a96365a2-638e-5e3e-b1f0-6270144e4de6, job is valid till 5/14/2025 1:49:56 PM
+[2025-05-14 13:39:55Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2628 1976'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 13:39:55Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 13:39:56Z INFO ProcessInvokerWrapper] Process started with process id 11356, waiting for process exit.
+[2025-05-14 13:39:56Z INFO JobDispatcher] Send job request message to worker for job a96365a2-638e-5e3e-b1f0-6270144e4de6.
+[2025-05-14 13:39:56Z INFO ProcessChannel] Sending message of length 20425, with hash '7c68312d8933620f89a3fc3ec0d525afebdde347492ff468d8aeac7c8667dc62'
+[2025-05-14 13:39:57Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 13:39:57Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 13:40:47Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:40:49Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 13:40:56Z INFO JobDispatcher] Successfully renew job a96365a2-638e-5e3e-b1f0-6270144e4de6, job is valid till 5/14/2025 1:50:56 PM
+[2025-05-14 13:40:59Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:40:59Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:40:59Z INFO ProcessInvokerWrapper] Finished process 11356 with exit code 102, and elapsed time 00:01:03.6589012.
+[2025-05-14 13:40:59Z INFO JobDispatcher] Worker finished for job a96365a2-638e-5e3e-b1f0-6270144e4de6. Code: 102
+[2025-05-14 13:40:59Z INFO JobDispatcher] finish job request for job a96365a2-638e-5e3e-b1f0-6270144e4de6 with result: Failed
+[2025-05-14 13:40:59Z INFO Terminal] WRITE LINE: 2025-05-14 13:40:59Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 13:40:59Z INFO JobDispatcher] Stop renew job request for job a96365a2-638e-5e3e-b1f0-6270144e4de6.
+[2025-05-14 13:40:59Z INFO JobDispatcher] job renew has been cancelled, stop renew job a96365a2-638e-5e3e-b1f0-6270144e4de6.
+[2025-05-14 13:40:59Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 13:40:59Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 13:40:59Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 13:57:56Z INFO MessageListener] Message '1833307553808376631' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 13:57:56Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 13:57:56Z INFO ConfigurationStore] stored True
+[2025-05-14 13:57:56Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 13:57:56Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 13:57:56Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 13:57:56Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:57:56Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:57:56Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 13:57:58Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 13:58:00Z INFO JobDispatcher] Job request 0 for plan 93c26b15-bb6a-4ec1-b5f0-a6665a0333e2 job 006d6261-b0a4-5644-a7e1-832776a2ed7e received.
+[2025-05-14 13:58:00Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 13:58:00Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 13:58:00Z INFO JobDispatcher] Job request a96365a2-638e-5e3e-b1f0-6270144e4de6 processed succeed.
+[2025-05-14 13:58:00Z INFO Terminal] WRITE LINE: 2025-05-14 13:58:00Z: Running job: pre-deployment-check
+[2025-05-14 13:58:00Z INFO JobDispatcher] Start renew job request 0 for job 006d6261-b0a4-5644-a7e1-832776a2ed7e.
+[2025-05-14 13:58:03Z INFO JobDispatcher] Successfully renew job 006d6261-b0a4-5644-a7e1-832776a2ed7e, job is valid till 5/14/2025 2:08:03 PM
+[2025-05-14 13:58:03Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2640 1620'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 13:58:03Z INFO ProcessInvokerWrapper] Process started with process id 24560, waiting for process exit.
+[2025-05-14 13:58:03Z INFO JobDispatcher] Send job request message to worker for job 006d6261-b0a4-5644-a7e1-832776a2ed7e.
+[2025-05-14 13:58:03Z INFO ProcessChannel] Sending message of length 20502, with hash '7cf3dacd1f3fea9d3becad08a26ebcc0fec096e24645a74969f5b938b9acf54f'
+[2025-05-14 13:58:06Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 13:58:06Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 13:59:03Z INFO JobDispatcher] Successfully renew job 006d6261-b0a4-5644-a7e1-832776a2ed7e, job is valid till 5/14/2025 2:09:03 PM
+[2025-05-14 13:59:04Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:59:04Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 13:59:04Z INFO ProcessInvokerWrapper] Finished process 24560 with exit code 102, and elapsed time 00:01:01.5898332.
+[2025-05-14 13:59:04Z INFO JobDispatcher] Worker finished for job 006d6261-b0a4-5644-a7e1-832776a2ed7e. Code: 102
+[2025-05-14 13:59:04Z INFO JobDispatcher] finish job request for job 006d6261-b0a4-5644-a7e1-832776a2ed7e with result: Failed
+[2025-05-14 13:59:04Z INFO Terminal] WRITE LINE: 2025-05-14 13:59:04Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 13:59:04Z INFO JobDispatcher] Stop renew job request for job 006d6261-b0a4-5644-a7e1-832776a2ed7e.
+[2025-05-14 13:59:04Z INFO JobDispatcher] job renew has been cancelled, stop renew job 006d6261-b0a4-5644-a7e1-832776a2ed7e.
+[2025-05-14 13:59:04Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 13:59:04Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 13:59:04Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 14:03:06Z INFO MessageListener] Message '2262226510771574807' received from session '6e95d615-a25a-4df7-9848-b064324246ae'.
+[2025-05-14 14:03:06Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 14:03:06Z INFO ConfigurationStore] stored True
+[2025-05-14 14:03:06Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 14:03:06Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 14:03:06Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 14:03:06Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 14:03:07Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 14:03:07Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 14:03:08Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 14:03:10Z INFO JobDispatcher] Job request 0 for plan 80531331-0144-4954-b3f2-d3867b41a476 job 32fe77de-babd-5448-9ce7-96278b8475df received.
+[2025-05-14 14:03:10Z INFO MessageListener] Received job status event. JobState: Busy
+[2025-05-14 14:03:10Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2025-05-14 14:03:10Z INFO JobDispatcher] Job request 006d6261-b0a4-5644-a7e1-832776a2ed7e processed succeed.
+[2025-05-14 14:03:10Z INFO Terminal] WRITE LINE: 2025-05-14 14:03:10Z: Running job: pre-deployment-check
+[2025-05-14 14:03:10Z INFO JobDispatcher] Start renew job request 0 for job 32fe77de-babd-5448-9ce7-96278b8475df.
+[2025-05-14 14:03:11Z INFO JobDispatcher] Successfully renew job 32fe77de-babd-5448-9ce7-96278b8475df, job is valid till 5/14/2025 2:13:11 PM
+[2025-05-14 14:03:11Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper] Starting process:
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   File name: 'D:\projects\philips\satmeup\.github-runner\bin\Runner.Worker.exe'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2604 2932'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Working directory: 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-05-14 14:03:11Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2025-05-14 14:03:12Z INFO ProcessInvokerWrapper] Process started with process id 22732, waiting for process exit.
+[2025-05-14 14:03:12Z INFO JobDispatcher] Send job request message to worker for job 32fe77de-babd-5448-9ce7-96278b8475df.
+[2025-05-14 14:03:12Z INFO ProcessChannel] Sending message of length 19843, with hash 'c1da987be846df7283feed33931f835dfbc06b7a47bb0b15b0f103e4f3e61c89'
+[2025-05-14 14:03:13Z INFO JobNotification] Entering JobStarted Notification
+[2025-05-14 14:03:13Z INFO JobNotification] Entering StartMonitor
+[2025-05-14 14:04:02Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 14:04:02Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-05-14 14:04:02Z INFO ProcessInvokerWrapper] Finished process 22732 with exit code 102, and elapsed time 00:00:50.9814894.
+[2025-05-14 14:04:02Z INFO JobDispatcher] Worker finished for job 32fe77de-babd-5448-9ce7-96278b8475df. Code: 102
+[2025-05-14 14:04:02Z INFO JobDispatcher] finish job request for job 32fe77de-babd-5448-9ce7-96278b8475df with result: Failed
+[2025-05-14 14:04:02Z INFO Terminal] WRITE LINE: 2025-05-14 14:04:02Z: Job pre-deployment-check completed with result: Failed
+[2025-05-14 14:04:02Z INFO JobDispatcher] Stop renew job request for job 32fe77de-babd-5448-9ce7-96278b8475df.
+[2025-05-14 14:04:02Z INFO JobDispatcher] job renew has been cancelled, stop renew job 32fe77de-babd-5448-9ce7-96278b8475df.
+[2025-05-14 14:04:02Z INFO JobNotification] Entering JobCompleted Notification
+[2025-05-14 14:04:02Z INFO JobNotification] Entering EndMonitor
+[2025-05-14 14:04:02Z INFO MessageListener] Received job status event. JobState: Online
+[2025-05-14 14:07:53Z INFO Terminal] WRITE LINE: Exiting...
+[2025-05-14 14:07:53Z INFO ConfigurationStore] IsServiceConfigured()
+[2025-05-14 14:07:53Z INFO ConfigurationStore] IsServiceConfigured: True
+[2025-05-14 14:07:53Z INFO Runner] Received Ctrl-C signal, stop Runner.Listener and Runner.Worker.
+[2025-05-14 14:07:53Z INFO HostContext] Runner will be shutdown for UserCancelled
+[2025-05-14 14:07:53Z WARN GitHubActionsService] GET request to https://broker.actions.githubusercontent.com/message?sessionId=6e95d615-a25a-4df7-9848-b064324246ae&status=Online&runnerVersion=2.323.0&os=Windows&architecture=X64&disableUpdate=false has been cancelled.
+[2025-05-14 14:07:53Z ERR  BrokerServer] Catch exception during request
+[2025-05-14 14:07:53Z ERR  BrokerServer] System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+ ---> System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+ ---> System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithNtAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean isProxyAuth, HttpConnection connection, HttpConnectionPool connectionPool, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at GitHub.Services.Common.RawHttpMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at GitHub.Services.Common.VssHttpRetryMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpClient.HandleFailure(Exception e, Boolean telemetryStarted, HttpResponseMessage response, CancellationTokenSource cts, CancellationToken cancellationToken, CancellationTokenSource pendingRequestsCts)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Sdk.WebApi.WebApi.RawHttpClientBase.SendAsync(HttpRequestMessage message, HttpCompletionOption completionOption, Object userState, CancellationToken cancellationToken)
+   at Sdk.WebApi.WebApi.RawHttpClientBase.SendAsync[T](HttpRequestMessage message, Boolean readErrorBody, Object userState, CancellationToken cancellationToken)
+   at Sdk.WebApi.WebApi.RawHttpClientBase.SendAsync[T](HttpMethod method, IEnumerable`1 additionalHeaders, Uri requestUri, HttpContent content, IEnumerable`1 queryParameters, Boolean readErrorBody, Object userState, CancellationToken cancellationToken)
+   at GitHub.Actions.RunService.WebApi.BrokerHttpClient.GetRunnerMessageAsync(Nullable`1 sessionId, String runnerVersion, Nullable`1 status, String os, String architecture, Nullable`1 disableUpdate, CancellationToken cancellationToken)
+   at GitHub.Runner.Common.BrokerServer.<>c__DisplayClass7_0.<<GetRunnerMessageAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at GitHub.Runner.Common.RunnerService.RetryRequest[T](Func`1 func, CancellationToken cancellationToken, Int32 maxRetryAttemptsCount, Func`2 shouldRetry)
+[2025-05-14 14:07:53Z ERR  BrokerServer] #####################################################
+[2025-05-14 14:07:53Z ERR  BrokerServer] System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+ ---> System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithNtAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean isProxyAuth, HttpConnection connection, HttpConnectionPool connectionPool, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at GitHub.Services.Common.RawHttpMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at GitHub.Services.Common.VssHttpRetryMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+[2025-05-14 14:07:53Z ERR  BrokerServer] #####################################################
+[2025-05-14 14:07:53Z ERR  BrokerServer] System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+[2025-05-14 14:07:53Z ERR  BrokerServer] #####################################################
+[2025-05-14 14:07:53Z ERR  BrokerServer] System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+[2025-05-14 14:07:53Z WARN BrokerServer] Back off 11.593 seconds before next retry. 4 attempt left.
+[2025-05-14 14:07:53Z INFO MessageListener] Get next message has been cancelled.
+[2025-05-14 14:07:53Z INFO JobDispatcher] Shutting down JobDispatcher. Make sure all WorkerDispatcher has finished.
+[2025-05-14 14:07:53Z INFO JobDispatcher] Ensure WorkerDispatcher for job 32fe77de-babd-5448-9ce7-96278b8475df run to finish, cancel any running job.
+[2025-05-14 14:07:53Z INFO JobDispatcher] Job request 32fe77de-babd-5448-9ce7-96278b8475df processed succeed.
+[2025-05-14 14:07:53Z INFO Runner] Deleting Runner Session...
+[2025-05-14 14:07:54Z INFO Listener] Runner execution been cancelled.
