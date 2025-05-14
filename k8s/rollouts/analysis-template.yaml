@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: smu-analysis
+spec:
+  metrics:
+    - name: success-rate
+      interval: 1m
+      successCondition: result[0] >= 0.95
+      failureCondition: result[0] < 0.95
+      provider:
+        prometheus:
+          address: http://prometheus-server.monitoring.svc.cluster.local:9090
+          query: |
+            sum(irate(
+              http_requests_total{service="{{args.service-name}}",status=~"2.."}[1m]
+            )) / 
+            sum(irate(
+              http_requests_total{service="{{args.service-name}}"}[1m]
+            ))
+
+    - name: latency
+      interval: 1m
+      successCondition: result[0] <= 300
+      failureCondition: result[0] > 300
+      provider:
+        prometheus:
+          address: http://prometheus-server.monitoring.svc.cluster.local:9090
+          query: |
+            histogram_quantile(0.95,
+              sum(rate(
+                http_request_duration_ms_bucket{service="{{args.service-name}}"}[1m]
+              )) by (le)
+            )
+
+    - name: ai-tuner-recommendation
+      interval: 2m
+      successCondition: result == "continue"
+      failureCondition: result == "rollback"
+      provider:
+        web:
+          url: http://smu-ai-tuner.default.svc.cluster.local:8080/analyze
+          jsonPath: "{$.recommendation}"
+          timeoutSeconds: 20

@@ -1,0 +1,18 @@
+[Wed 05/14/2025 12:26:15.79] --------whoami-------- 
+nt authority\network service
+[Wed 05/14/2025 12:26:16.33] --------whoami-------- 
+[Wed 05/14/2025 12:26:16.36] Waiting for Runner.Listener.exe (22592) to complete 
+[Wed 05/14/2025 12:26:17.86] Process 22592 finished running 
+[Wed 05/14/2025 12:26:17.86] Sleep 1 more second to make sure process exited 
+[Wed 05/14/2025 12:26:19.16] Re-organize folders 
+[Wed 05/14/2025 12:26:19.55] move "D:\projects\philips\satmeup\.github-runner\bin" "D:\projects\philips\satmeup\.github-runner\bin.2.311.0" 
+        1 dir(s) moved.
+[Wed 05/14/2025 12:26:19.68] move "D:\projects\philips\satmeup\.github-runner\externals" "D:\projects\philips\satmeup\.github-runner\externals.2.311.0" 
+        1 dir(s) moved.
+[Wed 05/14/2025 12:26:19.69] Create junction bin folder 
+Junction created for D:\projects\philips\satmeup\.github-runner\bin <<===>> D:\projects\philips\satmeup\.github-runner\bin.2.323.0
+[Wed 05/14/2025 12:26:19.72] Create junction externals folder 
+Junction created for D:\projects\philips\satmeup\.github-runner\externals <<===>> D:\projects\philips\satmeup\.github-runner\externals.2.323.0
+[Wed 05/14/2025 12:26:19.73] Update succeed 
+[Wed 05/14/2025 12:26:19.74] update.finished file creation succeed 
+[Wed 05/14/2025 12:26:19.74] Rename "D:\projects\philips\satmeup\.github-runner\_diag\SelfUpdate-20250514-065614.log" to be "D:\projects\philips\satmeup\.github-runner\_diag\SelfUpdate-20250514-065614.log.succeed" 

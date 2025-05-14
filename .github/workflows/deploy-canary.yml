@@ -1,0 +1,136 @@
+name: Deploy Canary
+
+on:
+  push:
+    branches: [deploy]
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  pre-deployment-check:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Verify Kubernetes Connection
+        run: |
+          # Copy the kubeconfig
+          Copy-Item -Path ".github\kubeconfig\config" -Destination "$env:TEMP\k8s-config" -Force
+          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+
+          # Retry mechanism for connection
+          $maxRetries = 3
+          $retryCount = 0
+          $success = $false
+
+          while (-not $success -and $retryCount -lt $maxRetries) {
+            try {
+              $retryCount++
+              Write-Host "Connection attempt $retryCount of $maxRetries..."
+              kubectl get nodes --request-timeout=60s
+              $success = $true
+              Write-Host "✅ Connection successful!"
+            } catch {
+              Write-Host "❌ Connection attempt $retryCount failed: $_"
+              Start-Sleep -Seconds 5
+            }
+          }
+
+          if (-not $success) {
+            Write-Host "❌ All connection attempts failed. Aborting."
+            exit 1
+          }
+
+      - name: Install Argo Rollouts (if needed)
+        run: |
+          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+
+          # Check if Argo Rollouts is installed
+          $namespace = kubectl get namespace argo-rollouts --ignore-not-found --request-timeout=30s
+          if (-not $namespace) {
+            Write-Host "Installing Argo Rollouts..."
+            kubectl create namespace argo-rollouts --request-timeout=30s
+            kubectl apply -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml -n argo-rollouts --request-timeout=30s
+          } else {
+            Write-Host "Argo Rollouts already installed."
+          }
+
+  deploy-canary:
+    needs: pre-deployment-check
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build and push canary image
+        run: |
+          docker build -t ghcr.io/karan-wakade/smu:canary-${{ github.sha }} .
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login ghcr.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ghcr.io/karan-wakade/smu:canary-${{ github.sha }}
+
+      - name: Deploy AI Tuner
+        run: |
+          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+
+          # Apply AI tuner configuration
+          kubectl apply -f k8s/rollouts/ai-tuner-config.yaml --request-timeout=30s
+
+          # Deploy or update AI tuner
+          docker build -t ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }} -f Dockerfile.ai-tuner .
+          docker push ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }}
+
+          kubectl set image deployment/smu-ai-tuner ai-tuner=ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }} --request-timeout=30s || kubectl apply -f k8s/rollouts/ai-tuner-deployment.yaml --request-timeout=30s
+
+      - name: Deploy Canary
+        run: |
+          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+
+          # Update rollout with new canary image
+          $rolloutYaml = Get-Content k8s/rollouts/rollout.yaml -Raw
+          $rolloutYaml = $rolloutYaml -replace 'image: karan-wakade/smu:.*', "image: karan-wakade/smu:canary-${{ github.sha }}"
+          $rolloutYaml | Out-File -FilePath k8s/rollouts/rollout.yaml -Encoding utf8
+
+          # Apply rollout configuration
+          kubectl apply -f k8s/rollouts/analysis-template.yaml --request-timeout=30s
+          kubectl apply -f k8s/rollouts/rollout.yaml --request-timeout=30s
+
+          # Watch rollout status
+          argo rollouts get rollout smu-rollout --watch -n default --request-timeout=30s
+
+  monitor-canary:
+    needs: deploy-canary
+    runs-on: self-hosted
+    steps:
+      - name: Setup Port Forwarding for Dashboards
+        run: |
+          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+
+          # Start port forwarding in background jobs
+          Start-Job -ScriptBlock {
+            kubectl port-forward svc/grafana 3000:3000 -n monitoring
+          }
+
+          Start-Job -ScriptBlock {
+            kubectl port-forward svc/prometheus-server 9090:9090 -n monitoring
+          }
+
+          Start-Job -ScriptBlock {
+            kubectl port-forward svc/smu-ai-tuner-dashboard 8080:8080 -n default
+          }
+
+          Start-Job -ScriptBlock {
+            kubectl port-forward svc/argo-rollouts-dashboard 3100:3100 -n argo-rollouts
+          }
+
+          Write-Host "Dashboards available at:"
+          Write-Host "- Grafana: http://localhost:3000"
+          Write-Host "- Prometheus: http://localhost:9090"
+          Write-Host "- AI Tuner Dashboard: http://localhost:8080"
+          Write-Host "- Argo Rollouts: http://localhost:3100"
+
+          # Keep port forwarding running for a while
+          Start-Sleep -Seconds 300
+
+      - name: Monitor AI Tuner Logs
+        run: |
+          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+          kubectl logs -f deployment/smu-ai-tuner -n default --request-timeout=30s

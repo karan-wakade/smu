@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: smu-rollout
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: smu
+  template:
+    metadata:
+      labels:
+        app: smu
+    spec:
+      containers:
+        - name: smu
+          image: ghcr.io/karan-wakade/smu:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+  strategy:
+    canary:
+      # Initial traffic percentage to new version
+      steps:
+        - setWeight: 20
+        - pause: { duration: 10m }
+        - setWeight: 40
+        - pause: { duration: 10m }
+        - setWeight: 60
+        - pause: { duration: 10m }
+        - setWeight: 80
+        - pause: { duration: 10m }
+      analysis:
+        templates:
+          - templateName: smu-analysis
+        startingStep: 1 # Start analysis after first traffic step
+        args:
+          - name: service-name
+            value: smu-service

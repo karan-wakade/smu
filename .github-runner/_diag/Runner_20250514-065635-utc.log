@@ -1,0 +1,164 @@
+[2025-05-14 06:56:35Z INFO HostContext] No proxy settings were found based on environmental variables (http_proxy/https_proxy/HTTP_PROXY/HTTPS_PROXY)
+[2025-05-14 06:56:35Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:35Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:35Z INFO HostContext] Well known config file 'Credentials': 'D:\projects\philips\satmeup\.github-runner\.credentials'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO HostContext] Well known config file 'Runner': 'D:\projects\philips\satmeup\.github-runner\.runner'
+[2025-05-14 06:56:36Z INFO Listener] Runner is built for Windows (X64) - win-x64.
+[2025-05-14 06:56:36Z INFO Listener] RuntimeInformation: Microsoft Windows 10.0.19045.
+[2025-05-14 06:56:36Z INFO Listener] Version: 2.323.0
+[2025-05-14 06:56:36Z INFO Listener] Commit: d8b82f44a9ec0258904d5869ae683c31d5aac299
+[2025-05-14 06:56:36Z INFO Listener] Culture: en-US
+[2025-05-14 06:56:36Z INFO Listener] UI Culture: en-US
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO Listener] Validating directory permissions for: 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO CommandLineParser] Parse
+[2025-05-14 06:56:36Z INFO CommandLineParser] Parsing 3 args
+[2025-05-14 06:56:36Z INFO CommandLineParser] parsing argument
+[2025-05-14 06:56:36Z INFO CommandLineParser] HasArgs: False
+[2025-05-14 06:56:36Z INFO CommandLineParser] Adding Command: run
+[2025-05-14 06:56:36Z INFO CommandLineParser] parsing argument
+[2025-05-14 06:56:36Z INFO CommandLineParser] HasArgs: True
+[2025-05-14 06:56:36Z INFO CommandLineParser] arg: startuptype
+[2025-05-14 06:56:36Z INFO CommandLineParser] parsing argument
+[2025-05-14 06:56:36Z INFO CommandLineParser] HasArgs: True
+[2025-05-14 06:56:36Z INFO CommandLineParser] Adding option 'startuptype': 'service'
+[2025-05-14 06:56:36Z INFO Listener] Arguments parsed
+[2025-05-14 06:56:36Z INFO Runner] ExecuteCommand
+[2025-05-14 06:56:36Z INFO ConfigurationStore] currentAssemblyLocation: D:\projects\philips\satmeup\.github-runner\bin\Runner.Listener.dll
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] binPath: D:\projects\philips\satmeup\.github-runner\bin
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] RootFolder: D:\projects\philips\satmeup\.github-runner
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO HostContext] Well known config file 'Runner': 'D:\projects\philips\satmeup\.github-runner\.runner'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] ConfigFilePath: D:\projects\philips\satmeup\.github-runner\.runner
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO HostContext] Well known config file 'MigratedRunner': 'D:\projects\philips\satmeup\.github-runner\.runner_migrated'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] MigratedConfigFilePath: D:\projects\philips\satmeup\.github-runner\.runner_migrated
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO HostContext] Well known config file 'Credentials': 'D:\projects\philips\satmeup\.github-runner\.credentials'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] CredFilePath: D:\projects\philips\satmeup\.github-runner\.credentials
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO HostContext] Well known config file 'MigratedCredentials': 'D:\projects\philips\satmeup\.github-runner\.credentials_migrated'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] MigratedCredFilePath: D:\projects\philips\satmeup\.github-runner\.credentials_migrated
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO HostContext] Well known config file 'Service': 'D:\projects\philips\satmeup\.github-runner\.service'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] ServiceConfigFilePath: D:\projects\philips\satmeup\.github-runner\.service
+[2025-05-14 06:56:36Z INFO CommandSettings] Flag 'help': 'False'
+[2025-05-14 06:56:36Z INFO CommandSettings] Flag 'version': 'False'
+[2025-05-14 06:56:36Z INFO CommandSettings] Flag 'commit': 'False'
+[2025-05-14 06:56:36Z INFO CommandSettings] Flag 'check': 'False'
+[2025-05-14 06:56:36Z INFO CommandSettings] Command 'configure': 'False'
+[2025-05-14 06:56:36Z INFO CommandSettings] Command 'remove': 'False'
+[2025-05-14 06:56:36Z INFO CommandSettings] Command 'warmup': 'False'
+[2025-05-14 06:56:36Z INFO ConfigurationManager] LoadSettings
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsConfigured()
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsConfigured: True
+[2025-05-14 06:56:36Z INFO ConfigurationManager] Is configured: True
+[2025-05-14 06:56:36Z INFO ConfigurationStore] Read setting file: 360 chars
+[2025-05-14 06:56:36Z INFO ConfigurationManager] Settings Loaded
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsServiceConfigured()
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsServiceConfigured: True
+[2025-05-14 06:56:36Z INFO CommandSettings] Command 'run': 'True'
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsConfigured()
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsConfigured: True
+[2025-05-14 06:56:36Z INFO ConfigurationManager] Is configured: True
+[2025-05-14 06:56:36Z INFO Runner] Set runner startup type - Service
+[2025-05-14 06:56:36Z INFO CommandSettings] Flag 'once': 'False'
+[2025-05-14 06:56:36Z INFO CommandSettings] Flag 'once': 'False'
+[2025-05-14 06:56:36Z INFO Runner] RunAsync
+[2025-05-14 06:56:36Z INFO ConfigurationManager] LoadSettings
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsConfigured()
+[2025-05-14 06:56:36Z INFO ConfigurationStore] IsConfigured: True
+[2025-05-14 06:56:36Z INFO ConfigurationManager] Is configured: True
+[2025-05-14 06:56:36Z INFO ConfigurationManager] Settings Loaded
+[2025-05-14 06:56:36Z INFO MessageListener] {
+  "AgentId": 22,
+  "AgentName": "Local-Minikube-Runner",
+  "PoolId": 1,
+  "PoolName": "Default",
+  "ServerUrl": "https://pipelinesghubeus2.actions.githubusercontent.com/3ppGNk8qZU6qAGoHW5wTnvcTB5WFuZILPPDIwIRTI9IopRkzE8/",
+  "GitHubUrl": "https://github.com/karan-wakade/smu",
+  "WorkFolder": "D:\\projects\\philips\\satmeup\\.github-runner\\_work"
+}
+[2025-05-14 06:56:36Z INFO MessageListener] Loading Credentials
+[2025-05-14 06:56:36Z INFO ConfigurationStore] HasCredentials()
+[2025-05-14 06:56:36Z INFO ConfigurationStore] stored True
+[2025-05-14 06:56:36Z INFO CredentialManager] GetCredentialProvider
+[2025-05-14 06:56:36Z INFO CredentialManager] Creating type OAuth
+[2025-05-14 06:56:36Z INFO CredentialManager] Creating credential type: OAuth
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Bin': 'D:\projects\philips\satmeup\.github-runner\bin'
+[2025-05-14 06:56:36Z INFO HostContext] Well known directory 'Root': 'D:\projects\philips\satmeup\.github-runner'
+[2025-05-14 06:56:36Z INFO HostContext] Well known config file 'RSACredentials': 'D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams'
+[2025-05-14 06:56:36Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 06:56:36Z INFO MessageListener] Attempt to create session.
+[2025-05-14 06:56:36Z INFO MessageListener] Connecting to the Runner Server...
+[2025-05-14 06:56:36Z INFO RunnerServer] EstablishVssConnection
+[2025-05-14 06:56:36Z INFO RunnerServer] Establish connection with 100 seconds timeout.
+[2025-05-14 06:56:37Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2025-05-14 06:56:38Z INFO RunnerServer] EstablishVssConnection
+[2025-05-14 06:56:38Z INFO RunnerServer] Establish connection with 60 seconds timeout.
+[2025-05-14 06:56:38Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2025-05-14 06:56:38Z INFO RunnerServer] EstablishVssConnection
+[2025-05-14 06:56:38Z INFO RunnerServer] Establish connection with 60 seconds timeout.
+[2025-05-14 06:56:38Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2025-05-14 06:56:41Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2025-05-14 06:56:41Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2025-05-14 06:56:41Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2025-05-14 06:56:41Z INFO MessageListener] VssConnection created
+[2025-05-14 06:56:41Z INFO Terminal] WRITE LINE: 
+[2025-05-14 06:56:41Z INFO Terminal] WRITE LINE: 
+[2025-05-14 06:56:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 06:56:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 06:56:43Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 06:56:43Z INFO MessageListener] Session created.
+[2025-05-14 06:56:43Z INFO Terminal] WRITE LINE: Current runner version: '2.323.0'
+[2025-05-14 06:56:43Z INFO Terminal] WRITE LINE: 2025-05-14 06:56:43Z: Listening for Jobs
+[2025-05-14 06:56:43Z INFO JobDispatcher] Set runner/worker IPC timeout to 30 seconds.
+[2025-05-14 06:56:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 06:56:44Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 07:27:06Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 07:47:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 07:47:24Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 07:47:24Z WARN GitHubActionsService] Retrieving an AAD auth token took a long time (2.9879092 seconds)
+[2025-05-14 07:52:27Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 07:52:28Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 07:57:31Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 08:27:53Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 08:38:00Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 08:38:01Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 08:48:08Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 08:48:10Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 08:48:10Z WARN GitHubActionsService] Retrieving an AAD auth token took a long time (2.0082236 seconds)
+[2025-05-14 08:58:17Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 09:28:44Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 09:28:45Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 09:28:47Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 09:43:59Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 09:44:00Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 09:59:13Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 10:19:27Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 10:19:29Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 10:19:29Z WARN GitHubActionsService] Retrieving an AAD auth token took a long time (2.6082457 seconds)
+[2025-05-14 10:29:35Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 10:39:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 10:39:44Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 11:00:01Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 11:09:30Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 11:09:31Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 11:30:38Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.
+[2025-05-14 11:34:52Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 11:34:57Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 11:34:57Z WARN GitHubActionsService] Retrieving an AAD auth token took a long time (4.9004116 seconds)
+[2025-05-14 12:00:14Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file D:\projects\philips\satmeup\.github-runner\.credentials_rsaparams
+[2025-05-14 12:00:15Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2025-05-14 12:01:06Z INFO MessageListener] No message retrieved from session '6e95d615-a25a-4df7-9848-b064324246ae' within last 30 minutes.

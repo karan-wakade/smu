@@ -1,0 +1,21 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY ai-tuner/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy AI tuner code
+COPY ai-tuner/ .
+
+# Expose the API and dashboard ports
+EXPOSE 8080 8081
+
+# Set environment variables
+ENV PROMETHEUS_URL=http://prometheus-server.monitoring:9090
+ENV MODEL_PATH=/app/models/tuner_model.pkl
+ENV LOG_LEVEL=INFO
+
+# Run the AI tuner service
+CMD ["python", "main.py"]

@@ -1,28 +1,31 @@
 # Backend-specific ignores
-/backend/node_modules
-/backend/.pnp
-/backend/.pnp.js
-/backend/coverage
-/backend/.env
-/backend/npm-debug.log*
-/backend/yarn-debug.log*
-/backend/yarn-error.log*
+/src/backend/node_modules
+/src/backend/.pnp
+/src/backend/.pnp.js
+/src/backend/coverage
+/src/backend/.env
+/src/backend/npm-debug.log*
+/src/backend/yarn-debug.log*
+/src/backend/yarn-error.log*
 
 # Frontend-specific ignores
-/frontend/node_modules
-/frontend/.pnp
-/frontend/.pnp.js
-/frontend/coverage
-/frontend/build
-/frontend/.DS_Store
-/frontend/.env.local
-/frontend/.env.development.local
-/frontend/.env.test.local
-/frontend/.env.production.local
-/frontend/npm-debug.log*
-/frontend/yarn-debug.log*
-/frontend/yarn-error.log*
+/src/frontend/node_modules
+/src/frontend/.pnp
+/src/frontend/.pnp.js
+/src/frontend/coverage
+/src/frontend/build
+/src/frontend/.DS_Store
+/src/frontend/.env.local
+/src/frontend/.env.development.local
+/src/frontend/.env.test.local
+/src/frontend/.env.production.local
+/src/frontend/npm-debug.log*
+/src/frontend/yarn-debug.log*
+/src/frontend/yarn-error.log*
+
+.github-runner/
 
 # General ignores
 .DS_Store
 .env
+**/node_modules/

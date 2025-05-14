@@ -1,226 +1,34 @@
-name: Build and Deploy
+name: Continuous Deployment
 
 on:
   push:
-    branches: [deploy]
+    branches: [main]
     paths-ignore:
       - "**.md"
-      - ".github/workflows/ci.yml"
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    outputs:
-      frontend_version: ${{ steps.meta-frontend.outputs.version }}
-      backend_version: ${{ steps.meta-backend.outputs.version }}
+  deploy:
+    runs-on: self-hosted
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # Updated to use your existing GHCR_PAT
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
-
-      - name: Extract frontend metadata
-        id: meta-frontend
-        uses: docker/metadata-action@v4
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/smu/frontend
-          tags: |
-            type=sha,format=short
-            type=ref,event=branch
-          flavor: |
-            latest=auto
-
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./frontend
-          push: true
-          tags: ${{ steps.meta-frontend.outputs.tags }}
-          labels: ${{ steps.meta-frontend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Extract backend metadata
-        id: meta-backend
-        uses: docker/metadata-action@v4
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/smu/backend
-          tags: |
-            type=sha,format=short
-            type=ref,event=branch
-          flavor: |
-            latest=auto
-
-      - name: Build and push backend image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./backend
-          push: true
-          tags: ${{ steps.meta-backend.outputs.tags }}
-          labels: ${{ steps.meta-backend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  deploy-canary:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    env:
-      NAMESPACE: smu-system
-      FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/smu/frontend
-      BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/smu/backend
-    steps:
-      # ===== Setup Phase =====
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-
-      - name: Set up tools
+      - name: Set up Kubernetes connection
         run: |
-          echo "Installing ArgoCD CLI..."
-          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x argocd
-          sudo mv argocd /usr/local/bin/
+          $env:KUBECONFIG = "$PWD\.github\kubeconfig\config"
 
-          echo "Installing kubectl-argo-rollouts plugin..."
-          curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
-          chmod +x ./kubectl-argo-rollouts-linux-amd64
-          sudo mv ./kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
+          # Test connection with longer timeout
+          kubectl get nodes --request-timeout=30s
 
-          echo "Verifying tools installation..."
-          kubectl version --client
-          kubectl-argo-rollouts version || echo "Warning: Argo Rollouts CLI not properly installed"
-          argocd version --client || echo "Warning: ArgoCD CLI not properly installed"
-
-      # ===== Kubernetes Configuration =====
-      - name: Configure Kubernetes access
+      - name: Deploy standard release
         run: |
-          echo "Setting up Kubernetes configuration..."
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+          $env:KUBECONFIG = "$PWD\.github\kubeconfig\config"
 
-          # Update API server URL if needed
-          if [ ! -z "${{ secrets.KUBE_API_URL }}" ]; then
-            echo "Updating API server URL..."
-            kubectl config set-cluster kubernetes --server="${{ secrets.KUBE_API_URL }}" --insecure-skip-tls-verify=true
-          fi
+          # Apply base configurations
+          kubectl apply -f k8s/base/ --request-timeout=30s
 
-      - name: Debug Kubernetes Configuration
-        run: |
-          echo "Debugging Kubernetes setup..."
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config || \
-            echo "::error::Failed to decode KUBE_CONFIG secret"
-          kubectl config view || echo "::error::Failed to view Kubernetes config"
-          kubectl config use-context kubernetes || echo "::error::Failed to set Kubernetes context"
+          # Update deployment with new image
+          kubectl set image deployment/smu-app smu-container=karan-wakade/smu:${{ github.sha }} --request-timeout=30s
 
-      - name: Verify Kubernetes connection
-        run: |
-          echo "Verifying Kubernetes connection..."
-          if ! kubectl cluster-info; then
-            echo "::error::Failed to connect to Kubernetes cluster"
-            exit 1
-          fi
-
-          echo "Cluster nodes:"
-          kubectl get nodes
-
-          echo "Available namespaces:"
-          kubectl get ns
-
-      # ===== Infrastructure Setup =====
-      - name: Create required namespaces
-        run: |
-          echo "Creating namespaces if they don't exist..."
-          for ns in monitoring argo-rollouts logging ${{ env.NAMESPACE }}; do
-            echo "Ensuring namespace $ns exists..."
-            kubectl create namespace $ns --dry-run=client -o yaml | kubectl apply -f -
-          done
-
-      - name: Deploy Argo Rollouts
-        run: |
-          echo "Deploying Argo Rollouts..."
-          kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
-
-          echo "Waiting for Argo Rollouts controller to be ready..."
-          kubectl -n argo-rollouts wait --for=condition=available deployment/argo-rollouts --timeout=60s || \
-            echo "::warning::Argo Rollouts might not be fully ready yet, but continuing..."
-
-      # ===== Infrastructure Components =====
-      - name: Deploy infrastructure components
-        run: |
-          if [ -d "k8s/infrastructure" ]; then
-            echo "Deploying infrastructure components..."
-            kubectl apply -f k8s/infrastructure/
-          else
-            echo "No infrastructure directory found, skipping..."
-          fi
-
-          if [ -d "k8s/dashboards" ]; then
-            echo "Deploying dashboards..."
-            kubectl apply -f k8s/dashboards/
-          else
-            echo "No dashboards directory found, skipping..."
-          fi
-
-          if [ -d "k8s/rollouts" ]; then
-            echo "Deploying rollout definitions..."
-            kubectl apply -f k8s/rollouts/
-          else
-            echo "No rollouts directory found, skipping..."
-          fi
-
-      # ===== Application Deployment =====
-      - name: Prepare application manifests
-        run: |
-          echo "Extracting image versions..."
-          FRONTEND_VERSION=$(echo "${{ needs.build-and-push.outputs.frontend_version }}" | sed 's/.*://')
-          BACKEND_VERSION=$(echo "${{ needs.build-and-push.outputs.backend_version }}" | sed 's/.*://')
-
-          echo "Frontend version: ${FRONTEND_VERSION}"
-          echo "Backend version: ${BACKEND_VERSION}"
-
-          if [ -d "k8s/argo-rollouts" ]; then
-            echo "Updating image versions in manifests..."
-            sed -i "s|${{ env.FRONTEND_IMAGE }}:.*|${{ env.FRONTEND_IMAGE }}:${FRONTEND_VERSION}|g" k8s/argo-rollouts/frontend-rollout.yaml
-            sed -i "s|${{ env.BACKEND_IMAGE }}:.*|${{ env.BACKEND_IMAGE }}:${BACKEND_VERSION}|g" k8s/argo-rollouts/backend-rollout.yaml
-            
-            cat k8s/argo-rollouts/frontend-rollout.yaml
-            cat k8s/argo-rollouts/backend-rollout.yaml
-          else
-            echo "::error::Required directory k8s/argo-rollouts not found!"
-            exit 1
-          fi
-
-      - name: Deploy application
-        run: |
-          echo "Deploying base resources..."
-          kubectl apply -f k8s/base/namespace.yaml || echo "::warning::Failed to apply namespace.yaml, it might not exist"
-
-          echo "Deploying application with Argo Rollouts..."
-          kubectl apply -f k8s/argo-rollouts/
-
-          echo "Deployment initiated successfully!"
-
-      # ===== Verification =====
-      - name: Verify deployment
-        run: |
-          echo "Verifying frontend rollout status..."
-          kubectl argo rollouts get rollout smu-frontend -n ${{ env.NAMESPACE }} || echo "::warning::Frontend rollout verification failed"
-
-          echo "Verifying backend rollout status..."
-          kubectl argo rollouts get rollout smu-backend -n ${{ env.NAMESPACE }} || echo "::warning::Backend rollout verification failed"
-
-          echo "Deployment verification complete."
+          # Monitor rollout
+          kubectl rollout status deployment/smu-app --timeout=5m --request-timeout=30s
