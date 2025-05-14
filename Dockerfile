@@ -1,34 +1,27 @@
-FROM node:16 AS frontend-builder
-
-WORKDIR /app/frontend
-COPY src/frontend/ .
-RUN npm ci && npm run build
-
-FROM python:3.9-slim
+FROM node:16-alpine AS builder
 
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-# Copy frontend build
-COPY --from=frontend-builder /app/frontend/build /app/static
+FROM node:16-alpine AS runner
+WORKDIR /app
 
-# Install backend dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy built assets from builder stage
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY package*.json ./
 
-# Copy backend code
-COPY src/backend/ .
+# Install only production dependencies
+RUN npm ci --only=production
 
-# Default values for customizable settings
-ENV PORT=8000
-ENV HEALTH_CHECK_PATH=/health
-ENV METRICS_PATH=/metrics
+# Add metrics for Prometheus
+RUN npm install prom-client
 
-# Expose the container port (can be overridden)
-EXPOSE ${PORT}
+# Expose port
+EXPOSE 8080
 
-# Add health check
-HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:${PORT}${HEALTH_CHECK_PATH} || exit 1
-
-# Run the application
-CMD ["sh", "-c", "python app.py --port=${PORT} --health-path=${HEALTH_CHECK_PATH} --metrics-path=${METRICS_PATH}"]
+# Start the app
+CMD ["npm", "start"]

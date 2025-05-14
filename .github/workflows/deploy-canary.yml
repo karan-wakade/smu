@@ -2,186 +2,140 @@ name: Deploy Canary
 
 on:
   push:
-    branches: [deploy]
-    paths-ignore:
-      - "**.md"
+    branches:
+      - main
+      - deploy
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ghcr.io/karan-wakade/smu
+  KUBERNETES_NAMESPACE: default
 
 jobs:
-  pre-deployment-check:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=ref,event=branch
+
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-canary:
+    needs: build-and-push
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Set PowerShell Execution Policy
-        run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-
-      - name: Validate Kubeconfig
+      - name: Set Kubernetes Context
         shell: powershell
         run: |
-          if (-Not (Test-Path ".github\kubeconfig\config")) {
-          Write-Host "❌ Kubeconfig file not found at: .github\kubeconfig\config"
-          exit 1
-          } else {
-          Write-Host "✅ Kubeconfig file exists."
-          }
-
-          # Show the kubeconfig content (redact sensitive information)
-          Get-Content ".github\kubeconfig\config" | Write-Output
-
-      - name: Debug Kubeconfig File
-        shell: powershell
-        run: |
-          Write-Host "Checking the contents of the kubeconfig file:"
-          Get-Content "$env:TEMP\k8s-config" | Write-Output
-
-      - name: Update Kubeconfig Server Address
-        shell: powershell
-        run: |
-          # Copy the kubeconfig
-          Copy-Item -Path ".github\kubeconfig\config" -Destination "$env:TEMP\k8s-config" -Force
-
-          # Update the server address in the kubeconfig file
-          (Get-Content "$env:TEMP\k8s-config") -replace "server: .*", "server: https://127.0.0.1:55906/" | Set-Content "$env:TEMP\k8s-config"
-
-          Write-Host "✅ Updated the kubeconfig file with the new server address."
-
-      - name: Test Kubernetes API Endpoint
-        shell: powershell
-        run: |
-          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+          $configPath = "$PWD\.github\kubeconfig\config"
+          $env:KUBECONFIG = $configPath
           kubectl cluster-info
 
-      - name: Verify Kubernetes Connection
+      - name: Install Argo Rollouts CLI
         shell: powershell
         run: |
-          # Copy the kubeconfig
-          Copy-Item -Path ".github\kubeconfig\config" -Destination "$env:TEMP\k8s-config" -Force
-          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+          # Download Argo Rollouts CLI
+          Invoke-WebRequest -Uri https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe -OutFile kubectl-argo-rollouts.exe
 
-          # Retry mechanism for connection
-          $maxRetries = 3
-          $retryCount = 0
-          $success = $false
+          # Move to a directory in PATH
+          Move-Item -Force kubectl-argo-rollouts.exe C:\Windows\System32\kubectl-argo-rollouts.exe
 
-          while (-not $success -and $retryCount -lt $maxRetries) {
-            try {
-              $retryCount++
-              Write-Host "Connection attempt $retryCount of $maxRetries..."
-              kubectl get nodes --request-timeout=60s
-              $success = $true
-              Write-Host "✅ Connection successful!"
-            } catch {
-              Write-Host "❌ Connection attempt $retryCount failed: $_"
-              Start-Sleep -Seconds 5
+          # Verify installation
+          kubectl argo rollouts version
+
+      - name: Update Rollout Image
+        shell: powershell
+        run: |
+          # Get the new image tag
+          $IMAGE_TAG = "${{ github.sha }}"
+          $SHORT_SHA = $IMAGE_TAG.Substring(0, 7)
+          $FULL_IMAGE = "${{ env.IMAGE_NAME }}:sha-$SHORT_SHA"
+
+          # Update the rollout with the new image
+          $ROLLOUT_NAME = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
+          kubectl argo rollouts set image $ROLLOUT_NAME smu=$FULL_IMAGE -n ${{ env.KUBERNETES_NAMESPACE }}
+
+      # - name: Update Rollout Image
+      #   run: |
+      #     # Get the new image tag
+      #     $IMAGE_TAG="${{ github.sha }}"
+      #     $SHORT_SHA="${IMAGE_TAG:0:7}"
+      #     $FULL_IMAGE="${{ env.IMAGE_NAME }}:sha-$SHORT_SHA"
+
+      #     # Update the rollout with the new image
+      #     kubectl argo rollouts set image ${{ github.ref_name == 'main' ? 'production' : 'staging' }}-rollout smu=$FULL_IMAGE -n ${{ env.KUBERNETES_NAMESPACE }}
+
+      - name: Watch Rollout
+        shell: powershell
+        run: |
+          $ROLLOUT_NAME = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
+          kubectl argo rollouts get rollout $ROLLOUT_NAME -n ${{ env.KUBERNETES_NAMESPACE }}
+
+          # Monitor status with timeout instead of watching indefinitely
+          $timeout = 300  # 5 minutes
+          $startTime = Get-Date
+          $status = ""
+
+          while ((Get-Date).Subtract($startTime).TotalSeconds -lt $timeout) {
+            $status = kubectl argo rollouts status $ROLLOUT_NAME -n ${{ env.KUBERNETES_NAMESPACE }}
+            if ($status -match "successfully") {
+              Write-Host "Rollout completed successfully!"
+              exit 0
             }
+            Start-Sleep -Seconds 10
           }
 
-          if (-not $success) {
-            Write-Host "❌ All connection attempts failed. Aborting."
+          Write-Error "Rollout did not complete within timeout period"
+          exit 1
+
+      # - name: Watch Rollout
+      #   run: |
+      #     kubectl argo rollouts get rollout ${{ github.ref_name == 'main' ? 'production' : 'staging' }}-rollout -n ${{ env.KUBERNETES_NAMESPACE }} -w
+
+      - name: Promote Rollout (if needed)
+        if: github.ref_name == 'main'
+        shell: powershell
+        run: |
+          try {
+            kubectl argo rollouts promote production-rollout -n ${{ env.KUBERNETES_NAMESPACE }}
+            Write-Host "Promotion successful!"
+          } catch {
+            Write-Error "Failed to promote rollout: $_"
             exit 1
           }
 
-      - name: Install Argo Rollouts (if needed)
-        run: |
-          $env:KUBECONFIG = "$env:TEMP\k8s-config"
-
-          # Check if Argo Rollouts is installed
-          $namespace = kubectl get namespace argo-rollouts --ignore-not-found --request-timeout=30s
-          if (-not $namespace) {
-            Write-Host "Installing Argo Rollouts..."
-            kubectl create namespace argo-rollouts --request-timeout=30s
-            kubectl apply -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml -n argo-rollouts --request-timeout=30s
-          } else {
-            Write-Host "Argo Rollouts already installed."
-          }
-
-  deploy-canary:
-    needs: pre-deployment-check
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Build and push canary image
-        shell: powershell
-        run: |
-          # Build the Docker image with elevated permissions
-          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker build -t ghcr.io/karan-wakade/smu:canary-${{ github.sha }} ." -Verb RunAs -Wait
-
-          # Log in to the Docker registry with elevated permissions
-          Start-Process -FilePath "powershell" -ArgumentList "-Command", "echo ${{ secrets.DOCKER_PASSWORD }} | docker login ghcr.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin" -Verb RunAs -Wait
-
-          # Push the Docker image with elevated permissions
-          Start-Process -FilePath "powershell" -ArgumentList "-Command", "docker push ghcr.io/karan-wakade/smu:canary-${{ github.sha }}" -Verb RunAs -Wait
-
-      - name: Deploy AI Tuner
-        run: |
-          $env:KUBECONFIG = "$env:TEMP\k8s-config"
-
-          # Apply AI tuner configuration
-          kubectl apply -f k8s/rollouts/ai-tuner-config.yaml --request-timeout=30s
-
-          # Deploy or update AI tuner
-          docker build -t ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }} -f Dockerfile.ai-tuner .
-          docker push ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }}
-
-          try {
-              kubectl set image deployment/smu-ai-tuner ai-tuner=ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }} --request-timeout=30s
-          } catch {
-              kubectl apply -f k8s/rollouts/ai-tuner-deployment.yaml --request-timeout=30s
-          }
-
-      - name: Deploy Canary
-        run: |
-          $env:KUBECONFIG = "$env:TEMP\k8s-config"
-
-          # Update rollout with new canary image
-          $rolloutYaml = Get-Content k8s/rollouts/rollout.yaml -Raw
-          $rolloutYaml = $rolloutYaml -replace 'image: karan-wakade/smu:.*', "image: karan-wakade/smu:canary-${{ github.sha }}"
-          $rolloutYaml | Out-File -FilePath k8s/rollouts/rollout.yaml -Encoding utf8
-
-          # Apply rollout configuration
-          kubectl apply -f k8s/rollouts/analysis-template.yaml --request-timeout=30s
-          kubectl apply -f k8s/rollouts/rollout.yaml --request-timeout=30s
-
-          # Watch rollout status
-          argo rollouts get rollout smu-rollout --watch -n default --request-timeout=30s
-
-  monitor-canary:
-    needs: deploy-canary
-    runs-on: self-hosted
-    steps:
-      - name: Setup Port Forwarding for Dashboards
-        run: |
-          $env:KUBECONFIG = "$env:TEMP\k8s-config"
-
-          # Start port forwarding in background jobs
-          Start-Job -ScriptBlock {
-            kubectl port-forward svc/grafana 3000:3000 -n monitoring
-          }
-
-          Start-Job -ScriptBlock {
-            kubectl port-forward svc/prometheus-server 9090:9090 -n monitoring
-          }
-
-          Start-Job -ScriptBlock {
-            kubectl port-forward svc/smu-ai-tuner-dashboard 8080:8080 -n default
-          }
-
-          Start-Job -ScriptBlock {
-            kubectl port-forward svc/argo-rollouts-dashboard 3100:3100 -n argo-rollouts
-          }
-
-          Write-Host "Dashboards available at:"
-          Write-Host "- Grafana: http://localhost:3000"
-          Write-Host "- Prometheus: http://localhost:9090"
-          Write-Host "- AI Tuner Dashboard: http://localhost:8080"
-          Write-Host "- Argo Rollouts: http://localhost:3100"
-
-          # Keep port forwarding running for a while
-          Start-Sleep -Seconds 300
-
-      - name: Monitor AI Tuner Logs
-        run: |
-          $env:KUBECONFIG = "$env:TEMP\k8s-config"
-          kubectl logs -f deployment/smu-ai-tuner -n default --request-timeout=30s
+      # - name: Promote Rollout (if needed)
+      #   if: github.ref_name == 'main'
+      #   run: |
+      #     kubectl argo rollouts promote ${{ github.ref_name == 'main' ? 'production' : 'staging' }}-rollout -n ${{ env.KUBERNETES_NAMESPACE }}

@@ -1,0 +1,149 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "Prometheus",
+        "enable": true,
+        "expr": "kube_rollout_info{rollout_name=~\".*rollout\"}",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "name": "Rollout Events",
+        "titleFormat": "Rollout Event"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 22,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "title": "Canary Deployment Status",
+      "type": "bargauge",
+      "targets": [
+        {
+          "expr": "kube_rollout_status_phase{phase=\"active\"}",
+          "legendFormat": "{{rollout_name}} - {{namespace}}"
+        }
+      ]
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "title": "Canary vs Stable Pods",
+      "type": "piechart",
+      "targets": [
+        {
+          "expr": "sum(kube_pod_info{namespace=\"default\", pod=~\"production-rollout.*\"}) by (pod_template_hash)",
+          "legendFormat": "{{pod_template_hash}}"
+        }
+      ]
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 3,
+      "title": "Success Rate",
+      "description": "HTTP 2xx responses vs total",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{status_code=~\"2..\", service=~\"smu.*\"}[1m])) / sum(rate(http_requests_total{service=~\"smu.*\"}[1m])) * 100",
+          "legendFormat": "Success Rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99
+              }
+            ]
+          },
+          "max": 100,
+          "min": 0
+        }
+      }
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 4,
+      "title": "Response Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=~\"smu-canary-svc\"}[1m])) by (le))",
+          "legendFormat": "Canary P95"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=~\"smu-stable-svc\"}[1m])) by (le))",
+          "legendFormat": "Stable P95"
+        }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [
+    "canary",
+    "rollouts"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Canary Deployment Dashboard",
+  "uid": "canary-dashboard",
+  "version": 1
+}

@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: production-rollout
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: smu
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: smu
+        environment: production
+    spec:
+      containers:
+        - name: smu
+          image: ghcr.io/karan-wakade/smu:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+  strategy:
+    canary:
+      steps:
+        - setWeight: 20
+        - pause: { duration: 30s }
+        - setWeight: 40
+        - pause: { duration: 30s }
+        - setWeight: 60
+        - pause: { duration: 30s }
+        - setWeight: 80
+        - pause: { duration: 30s }
+      analysis:
+        templates:
+          - templateName: success-rate
+        args:
+          - name: service-name
+            value: smu-service
+      canaryService: smu-canary-svc
+      stableService: smu-stable-svc
