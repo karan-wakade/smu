@@ -125,11 +125,7 @@ jobs:
           docker build -t ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }} -f Dockerfile.ai-tuner .
           docker push ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }}
 
-          try {
-              kubectl set image deployment/smu-ai-tuner ai-tuner=ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }} --request-timeout=30s
-          } catch {
-              kubectl apply -f k8s/rollouts/ai-tuner-deployment.yaml --request-timeout=30s
-          }
+          kubectl set image deployment/smu-ai-tuner ai-tuner=ghcr.io/karan-wakade/smu-ai-tuner:${{ github.sha }} --request-timeout=30s || kubectl apply -f k8s/rollouts/ai-tuner-deployment.yaml --request-timeout=30s
 
       - name: Deploy Canary
         run: |
