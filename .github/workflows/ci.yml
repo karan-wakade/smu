@@ -18,13 +18,25 @@ jobs:
         with:
           node-version: "16"
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: src/backend
         run: |
           npm ci
 
-      - name: Run tests
+      - name: Install frontend dependencies
+        working-directory: src/frontend
+        run: |
+          npm ci
+
+      - name: Run backend tests
+        working-directory: src/backend
         run: |
           npm test
+
+      - name: Run frontend tests
+        working-directory: src/frontend
+        run: |
+          npm test:ci
 
       - name: Build Docker image
         run: |
