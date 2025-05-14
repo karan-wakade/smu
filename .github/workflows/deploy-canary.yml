@@ -16,6 +16,25 @@ jobs:
         run: |
           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
+      - name: Validate Kubeconfig
+        shell: powershell
+        run: |
+          if (-Not (Test-Path ".github\kubeconfig\config")) {
+          Write-Host "❌ Kubeconfig file not found at: .github\kubeconfig\config"
+          exit 1
+          } else {
+          Write-Host "✅ Kubeconfig file exists."
+          }
+
+          # Show the kubeconfig content (redact sensitive information)
+          Get-Content ".github\kubeconfig\config" | Write-Output
+
+      - name: Test Kubernetes API Endpoint
+        shell: powershell
+        run: |
+          $env:KUBECONFIG = "$env:TEMP\k8s-config"
+          kubectl cluster-info
+
       - name: Verify Kubernetes Connection
         shell: powershell
         run: |
