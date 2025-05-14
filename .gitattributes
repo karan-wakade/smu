@@ -1,0 +1,10 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Force specific files to use LF
+.github/kubeconfig/config text eol=lf
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+kubernetes/** text eol=lf
+k8s/** text eol=lf
