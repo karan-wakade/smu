@@ -66,7 +66,7 @@ jobs:
         shell: powershell
         run: |
           # Path to the manually installed binary
-          $cliPath = "D:\projects\philips\kubectl-argo-rollouts.exe"
+          $cliPath = "D:\projects\kubectl-argo-rollouts.exe"
           # OR use a path relative to your runner
           # $cliPath = "D:\projects\philips\satmeup\.github-runner\tools\kubectl-argo-rollouts.exe"
 
