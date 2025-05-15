@@ -62,17 +62,29 @@ jobs:
           $env:KUBECONFIG = $configPath
           kubectl cluster-info
 
+      # - name: Install Argo Rollouts CLI
+      #   shell: powershell
+      #   run: |
+      #     # Download Argo Rollouts CLI
+      #     Invoke-WebRequest -Uri https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe -OutFile kubectl-argo-rollouts.exe
+
+      #     # Move to a directory in PATH
+      #     Move-Item -Force kubectl-argo-rollouts.exe C:\Windows\System32\kubectl-argo-rollouts.exe
+
+      #     # Verify installation
+      #     kubectl argo rollouts version
+
       - name: Install Argo Rollouts CLI
         shell: powershell
         run: |
-          # Download Argo Rollouts CLI
-          Invoke-WebRequest -Uri https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe -OutFile kubectl-argo-rollouts.exe
+          Write-Host "Downloading Argo Rollouts CLI using curl..."
+          curl.exe -L -o kubectl-argo-rollouts.exe https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe
 
-          # Move to a directory in PATH
-          Move-Item -Force kubectl-argo-rollouts.exe C:\Windows\System32\kubectl-argo-rollouts.exe
+          # Add to PATH for this session
+          $env:PATH = "$PWD;$env:PATH"
 
           # Verify installation
-          kubectl argo rollouts version
+          ./kubectl-argo-rollouts.exe version
 
       - name: Update Rollout Image
         shell: powershell
