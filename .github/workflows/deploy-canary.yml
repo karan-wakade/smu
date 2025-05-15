@@ -15,6 +15,18 @@ jobs:
   deploy-canary:
     runs-on: self-hosted
     steps:
+      - name: Ensure Docker Service is Running
+        shell: powershell
+        run: |
+          # Check if Docker is running
+          $dockerService = Get-Service -Name docker -ErrorAction SilentlyContinue
+          if ($dockerService.Status -ne "Running") {
+              Write-Host "Starting Docker service..."
+              Start-Service -Name docker
+          } else {
+              Write-Host "Docker service is already running."
+          }
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
