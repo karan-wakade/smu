@@ -154,13 +154,13 @@ jobs:
 
           # Verify Kind cluster exists
           $clusterExists = kind get clusters | Where-Object { $_ -eq "smu" }
+
+          # Create the Kind cluster if it doesn't exist
           if (-not $clusterExists) {
             Write-Host "Kind cluster 'smu' not found. Creating it..."
             
-            # Create a simple kind-config.yaml if it doesn't exist
-            if (-not (Test-Path "kind-config.yaml")) {
-              @"
-            kind: Cluster
+            # Create kind config file - fixed syntax
+            $kindConfig = 'kind: Cluster
             apiVersion: kind.x-k8s.io/v1alpha4
             nodes:
             - role: control-plane
@@ -169,15 +169,16 @@ jobs:
                 hostPort: 80
               - containerPort: 443
                 hostPort: 443
-            - role: worker
-            "@ | Out-File -FilePath "kind-config.yaml" -Encoding utf8
-                        }
-                        
-                        # Create the cluster
-                        kind create cluster --name smu --config kind-config.yaml
-                      } else {
-                        Write-Host "Found existing Kind cluster 'smu'"
-                      }
+            - role: worker'
+            
+            # Write config to file
+            $kindConfig | Out-File -FilePath "kind-config.yaml" -Encoding utf8
+            
+            # Create the cluster
+            kind create cluster --name smu --config kind-config.yaml
+          } else {
+            Write-Host "Found existing Kind cluster 'smu'"
+          }
 
           # Load the local image into Kind
           Write-Host "Loading image into Kind cluster: $IMAGE_NAME:$SHA_TAG"
