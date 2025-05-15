@@ -159,6 +159,33 @@ jobs:
           Write-Host "Environment variables:"
           Get-ChildItem Env: | Format-Table -AutoSize
 
+      - name: Deploy Kubernetes Resources
+        shell: powershell
+        run: |
+          # Determine which overlay to use based on branch
+          $overlay = if ("${{ github.ref_name }}" -eq "main") { "production" } else { "staging" }          Write-Host "Using overlay: $overlay"
+
+          # Apply Kustomize configuration
+          cd kubernetes/overlays/$overlay
+
+          # List files to verify
+          Write-Host "Files in kubernetes/overlays/$overlay:"
+          Get-ChildItem -Recurse
+
+          # Apply the configuration
+          kubectl apply -k .
+
+          # Wait for rollout to be ready
+          $namespace = "${{ env.KUBERNETES_NAMESPACE }}"
+          $ROLLOUT_NAME = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
+          Write-Host "Waiting for rollout $rolloutName in namespace $namespace to be ready..."
+          try {
+            kubectl wait --for=condition=Progressing rollout/$rolloutName -n $namespace --timeout=30s
+            Write-Host "Rollout is ready"
+          } catch {
+            Write-Host "WARNING: Rollout not ready in time. Will attempt to proceed anyway."
+          }
+
       - name: Update Rollout Image
         shell: powershell
         run: |
