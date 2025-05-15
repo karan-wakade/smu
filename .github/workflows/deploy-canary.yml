@@ -109,6 +109,29 @@ jobs:
       #     # Verify installation
       #     ./kubectl-argo-rollouts.exe version
 
+      - name: Set up Kubeconfig
+        shell: powershell
+        run: |
+          # Create .kube directory if it doesn't exist
+          $kubeDir = "$env:USERPROFILE\.kube"
+          if (-not (Test-Path $kubeDir)) {
+              New-Item -ItemType Directory -Force -Path $kubeDir | Out-Null
+          }
+
+          # Set the kubeconfig content from GitHub secret
+          $kubeconfig = @'
+          ${{ secrets.KUBECONFIG }}
+          '@
+
+          # Write to file
+          $kubeconfig | Out-File -FilePath "$kubeDir\config" -Encoding utf8 -Force
+
+          # Verify kubectl can connect to the cluster
+          kubectl cluster-info
+
+          # Set environment variable for subsequent steps
+          echo "KUBECONFIG=$kubeDir\config" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Update Rollout Image
         shell: powershell
         run: |
