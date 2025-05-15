@@ -150,9 +150,9 @@ jobs:
           Write-Host "All rollouts in the cluster:"
           kubectl get rollouts --all-namespaces
 
-          # List all resources in the target namespace
+          # List all resources in the target namespace - FIXED LINE
           $namespace = "${{ env.KUBERNETES_NAMESPACE }}"
-          Write-Host "All resources in namespace $namespace:"
+          Write-Host "All resources in namespace $($namespace):"   # Use $() for variable expansion
           kubectl get all -n $namespace
 
           # Show environment variables for debugging
