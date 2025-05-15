@@ -65,18 +65,31 @@ jobs:
       - name: Setup Argo Rollouts CLI Path
         shell: powershell
         run: |
-          # Path to the manually installed binary
-          $cliPath = "D:\projects\kubectl-argo-rollouts.exe"
-          # OR use a path relative to your runner
-          # $cliPath = "D:\projects\philips\satmeup\.github-runner\tools\kubectl-argo-rollouts.exe"
+          # Define path to the manually installed binary
+          # This should be on the runner machine, NOT in the git repo
+          $cliPath = "C:\tools\kubectl-argo-rollouts.exe"
 
-          # Verify it exists
+          # Check if it exists, if not create directory and copy from a network location
           if (-not (Test-Path $cliPath)) {
-              Write-Host "Error: kubectl-argo-rollouts.exe not found at $cliPath"
+              Write-Host "CLI not found, creating directory and installing..."
+              $toolsDir = "C:\tools"
+              if (-not (Test-Path $toolsDir)) {
+                  New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
+              }
+              
+              # Option 1: Copy from network share if available
+              # Copy-Item "\\networkshare\tools\kubectl-argo-rollouts.exe" -Destination $cliPath
+              
+              # Option 2: Output error and instructions
+              Write-Host "ERROR: kubectl-argo-rollouts.exe not found at $cliPath"
+              Write-Host "Please manually install it using these steps:"
+              Write-Host "1. Download kubectl-argo-rollouts-windows-amd64.exe from https://github.com/argoproj/argo-rollouts/releases/latest/"
+              Write-Host "2. Rename it to kubectl-argo-rollouts.exe"
+              Write-Host "3. Place it at $cliPath"
               exit 1
           }
 
-          # Add containing directory to PATH
+          # Add the directory to PATH for this workflow run
           $binDir = [System.IO.Path]::GetDirectoryName($cliPath)
           echo "$binDir" | Out-File -FilePath $env:GITHUB_PATH -Append
           $env:PATH = "$binDir;$env:PATH"
