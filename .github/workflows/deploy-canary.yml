@@ -67,7 +67,7 @@ jobs:
         run: |
           # Define path to the manually installed binary
           # This should be on the runner machine, NOT in the git repo
-          $cliPath = "C:\tools\kubectl-argo-rollouts.exe"
+          $cliPath = "C:\tools\kubectl-argo-rollouts-windows-amd64.exe"
 
           # Check if it exists, if not create directory and copy from a network location
           if (-not (Test-Path $cliPath)) {
