@@ -306,7 +306,7 @@ jobs:
           }
 
           # Verify resources were created
-          Write-Host "Checking created resources in namespace $namespace:"
+          # Write-Host "Checking created resources in namespace $namespace:"
           if ($useStandardDeployment) {
             kubectl get deployments -n $namespace
             kubectl get services -n $namespace
@@ -330,7 +330,7 @@ jobs:
               kubectl rollout status deployment/$resourceName -n $namespace --timeout=2m
             } else {
               Write-Host "WARNING: Deployment $resourceName not found. The resources were applied but may have a different name."
-              Write-Host "Listing all deployments in namespace $namespace:"
+              # Write-Host "Listing all deployments in namespace $namespace:"
               kubectl get deployments -n $namespace
             }
           } else {
