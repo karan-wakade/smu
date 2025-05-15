@@ -1,30 +1,12 @@
-param (
+﻿param (
     [string]$Namespace = "default",
     [string]$EnvFile = ".env.local"
 )
 
 # Check if env file exists
 if (-not (Test-Path $EnvFile)) {
-    Write-Host "Environment file $EnvFile not found. Creating template..." -ForegroundColor Yellow
-    @"
-# SMU Application Environment Variables
-# Replace these with your actual values
-
-# API Keys
-API_KEY=your_api_key_here
-
-# Database
-DB_HOST=localhost
-DB_USER=smu_user
-DB_PASSWORD=changeme
-DB_NAME=smu_db
-
-# App Settings
-NODE_ENV=development
-"@ | Out-File -FilePath $EnvFile
-    
-    Write-Host "Created template $EnvFile. Please edit with your actual values and run this script again." -ForegroundColor Yellow
-    exit 0
+    Write-Host "Environment file $EnvFile not found!" -ForegroundColor Red
+    exit 1
 }
 
 # Read env file and create Kubernetes secret
@@ -45,8 +27,8 @@ data:
 
 # Process each line in the env file
 Get-Content $EnvFile | Where-Object { $_ -match "^\s*([^#][^=]+)=(.*)$" } | ForEach-Object {
-    $key = $matches[1].Trim()
-    $value = $matches[2]
+    $key = $Matches[1].Trim()
+    $value = $Matches[2]
     
     # Convert value to base64 for Kubernetes secret
     $base64Value = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($value))

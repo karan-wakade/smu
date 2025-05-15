@@ -1,4 +1,4 @@
-param (
+﻿param (
     [string]$Namespace = "default",
     [string]$Environment = "staging"
 )
@@ -24,18 +24,27 @@ kubectl apply -k kubernetes/overlays/$Environment -n $Namespace
 # Wait for deployment to be ready
 $deploymentName = "$Environment-rollout"
 Write-Host "Waiting for deployment $deploymentName to be ready..." -ForegroundColor Yellow
-kubectl rollout status deployment/$deploymentName -n $Namespace --timeout=120s
+
+# Try a few times in case it times out
+$maxAttempts = 3
+$success = $false
+
+for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+    try {
+        Write-Host "Attempt $attempt of $maxAttempts..." -ForegroundColor Yellow
+        kubectl rollout status deployment/$deploymentName -n $Namespace --timeout=60s
+        $success = $true
+        break
+    } catch {
+        Write-Host "Deployment status check timed out, checking deployment status..." -ForegroundColor Yellow
+        kubectl get deployment $deploymentName -n $Namespace
+    }
+}
 
 # Get service information
 $serviceIP = kubectl get service "$deploymentName-service" -n $Namespace -o jsonpath='{.spec.clusterIP}'
 $servicePort = kubectl get service "$deploymentName-service" -n $Namespace -o jsonpath='{.spec.ports[0].port}'
 
 Write-Host "Application deployed successfully!" -ForegroundColor Green
-# Write-Host "Service available at: http://$serviceIP:$servicePort within the cluster" -ForegroundColor Green
-# Write-Host "To access locally, run: kubectl port-forward service/$deploymentName-service $servicePort:$servicePort -n $Namespace" -ForegroundColor Green
-
-# Fix line 34
-Write-Host "Service available at: http://${serviceIP}:${servicePort} within the cluster" -ForegroundColor Green
-
-# Fix line 35  
-Write-Host "To access locally, run: kubectl port-forward service/$deploymentName-service ${servicePort}:${servicePort} -n $Namespace" -ForegroundColor Green
+Write-Host "Service available at: http://$serviceIP:$servicePort within the cluster" -ForegroundColor Green
+Write-Host "To access locally, run: ./scripts/port-forward.ps1 -Environment $Environment -LocalPort 8080" -ForegroundColor Green

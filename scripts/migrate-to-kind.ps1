@@ -19,14 +19,21 @@ if (-not (Get-Command "kind" -ErrorAction SilentlyContinue)) {
 
 # Check if Docker is running
 try {
-    docker version | Out-Null
+    # Try to run a simple Docker command
+    $dockerRunning = docker info 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Docker command failed"
+    }
+    Write-Host "Docker is running." -ForegroundColor Green
 } catch {
-    Write-Host "ERROR: Docker is not running. Please start Docker Desktop first." -ForegroundColor Red
+    Write-Host "ERROR: Docker is not running or not installed correctly." -ForegroundColor Red
+    Write-Host "Please ensure Docker Desktop is installed and running." -ForegroundColor Red
+    Write-Host "Download from: https://www.docker.com/products/docker-desktop/" -ForegroundColor Yellow
     exit 1
 }
 
-# Check if helm is installed
-if (-not (Get-Command "helm" -ErrorAction SilentlyContinue)) {
+# Check if helm is installed for monitoring
+if (-not (Get-Command "helm" -ErrorAction SilentlyContinue) -and -not $Skip_Monitoring) {
     Write-Host "WARNING: Helm is not installed. Monitoring setup will be skipped." -ForegroundColor Yellow
     $Skip_Monitoring = $true
 }
@@ -41,7 +48,8 @@ Write-Host "Step 2: Creating Kind cluster..." -ForegroundColor Green
 $kindConfigPath = "kind-config.yaml"
 if (-not (Test-Path $kindConfigPath)) {
     Write-Host "Creating Kind configuration file..." -ForegroundColor Yellow
-    @"
+    
+    $kindConfig = @'
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
@@ -66,7 +74,9 @@ nodes:
     hostPort: 9090
     protocol: TCP
 - role: worker
-"@ | Out-File -FilePath $kindConfigPath -Encoding utf8
+'@
+    
+    Set-Content -Path $kindConfigPath -Value $kindConfig -Encoding UTF8
 }
 
 # Check if cluster already exists
@@ -165,7 +175,7 @@ if (-not $Skip_Secrets_Migration) {
     } else {
         Write-Host "Creating a template .env.local file for manual configuration..." -ForegroundColor Yellow
         
-        @"
+        $envTemplate = @'
 # SMU Application Environment Variables
 # Replace these with your actual values
 
@@ -180,8 +190,9 @@ DB_NAME=smu_db
 
 # App Settings
 NODE_ENV=development
-"@ | Out-File -FilePath ".env.local" -Encoding utf8
+'@
         
+        Set-Content -Path ".env.local" -Value $envTemplate -Encoding UTF8
         Write-Host "Created .env.local template. Please update with your actual values." -ForegroundColor Yellow
     }
     
@@ -243,7 +254,7 @@ if (-not $Skip_Monitoring) {
     Write-Host ""
 }
 
-# Step 5: Create helpful scripts
+# Step 5: Create helper scripts (one by one to avoid nested string issues)
 Write-Host "Step 5: Creating helper scripts..." -ForegroundColor Green
 
 # Create scripts directory if it doesn't exist
@@ -251,82 +262,87 @@ if (-not (Test-Path "scripts")) {
     New-Item -ItemType Directory -Path "scripts" | Out-Null
 }
 
-# Create apply-secrets script
-@"
+# Create apply-secrets.ps1
+Write-Host "Creating apply-secrets.ps1..." -ForegroundColor Green
+$applySecretsScript = @'
 param (
-    [string]`$Namespace = "default",
-    [string]`$EnvFile = ".env.local"
+    [string]$Namespace = "default",
+    [string]$EnvFile = ".env.local"
 )
 
 # Check if env file exists
-if (-not (Test-Path `$EnvFile)) {
-    Write-Host "Environment file `$EnvFile not found!" -ForegroundColor Red
+if (-not (Test-Path $EnvFile)) {
+    Write-Host "Environment file $EnvFile not found!" -ForegroundColor Red
     exit 1
 }
 
 # Read env file and create Kubernetes secret
-Write-Host "Creating Kubernetes secret from `$EnvFile..." -ForegroundColor Green
+Write-Host "Creating Kubernetes secret from $EnvFile..." -ForegroundColor Green
 
 # Create a temporary file for the secret
-`$tempFile = [System.IO.Path]::GetTempFileName()
+$tempFile = [System.IO.Path]::GetTempFileName()
 
 @"
 apiVersion: v1
 kind: Secret
 metadata:
   name: smu-config
-  namespace: `$Namespace
+  namespace: $Namespace
 type: Opaque
 data:
-"@ | Out-File -FilePath `$tempFile
+"@ | Out-File -FilePath $tempFile
 
 # Process each line in the env file
-Get-Content `$EnvFile | Where-Object { `$_ -match "^\s*([^#][^=]+)=(.*)$" } | ForEach-Object {
-    `$key = `$matches[1].Trim()
-    `$value = `$matches[2]
+Get-Content $EnvFile | Where-Object { $_ -match "^\s*([^#][^=]+)=(.*)$" } | ForEach-Object {
+    $key = $Matches[1].Trim()
+    $value = $Matches[2]
     
     # Convert value to base64 for Kubernetes secret
-    `$base64Value = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes(`$value))
+    $base64Value = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($value))
     
     # Add to secret file
-    "  `$key`: `$base64Value" | Out-File -FilePath `$tempFile -Append
+    "  $key`: $base64Value" | Out-File -FilePath $tempFile -Append
 }
 
 # Apply secret to cluster
-kubectl apply -f `$tempFile
+kubectl apply -f $tempFile
 
 # Clean up temp file
-Remove-Item `$tempFile
+Remove-Item $tempFile
 
-Write-Host "Secret 'smu-config' applied to namespace '`$Namespace'" -ForegroundColor Green
-"@ | Out-File -FilePath "scripts\apply-secrets.ps1" -Encoding utf8
+Write-Host "Secret 'smu-config' applied to namespace '$Namespace'" -ForegroundColor Green
+'@
+Set-Content -Path "scripts\apply-secrets.ps1" -Value $applySecretsScript -Encoding UTF8
 
-# Create port-forward script
-@"
+# Create port-forward.ps1
+Write-Host "Creating port-forward.ps1..." -ForegroundColor Green
+$portForwardScript = @'
 param (
-    [string]`$Namespace = "default",
-    [string]`$Environment = "staging",
-    [int]`$LocalPort = 8080
+    [string]$Namespace = "default",
+    [string]$Environment = "staging",
+    [int]$LocalPort = 8080
 )
 
-`$resourceName = "`$Environment-rollout-service"
+$resourceName = "$Environment-rollout-service"
 
-Write-Host "Setting up port forwarding for `$resourceName in namespace `$Namespace..." -ForegroundColor Green
-Write-Host "Application will be available at http://localhost:`$LocalPort" -ForegroundColor Green
+Write-Host "Setting up port forwarding for $resourceName in namespace $Namespace..." -ForegroundColor Green
+Write-Host "Application will be available at http://localhost:$LocalPort" -ForegroundColor Green
 Write-Host "Press Ctrl+C to stop port forwarding" -ForegroundColor Yellow
 
-kubectl port-forward service/`$resourceName `$LocalPort:80 -n `$Namespace
-"@ | Out-File -FilePath "scripts\port-forward.ps1" -Encoding utf8
+kubectl port-forward service/$resourceName $LocalPort:80 -n $Namespace
+'@
+Set-Content -Path "scripts\port-forward.ps1" -Value $portForwardScript -Encoding UTF8
 
-# Create deploy script
-@"
+# Create deploy-app.ps1
+Write-Host "Creating deploy-app.ps1..." -ForegroundColor Green
+$deployAppScript = @'
 param (
-    [string]`$Namespace = "default",
-    [string]`$Environment = "staging"
+    [string]$Namespace = "default",
+    [string]$Environment = "staging"
 )
 
 # Ensure namespace exists
-kubectl create namespace `$Namespace --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace $Namespace --dry-run=client -o yaml | kubectl apply -f -
 
 # Build and load the Docker image into Kind
 Write-Host "Building Docker image..." -ForegroundColor Green
@@ -337,52 +353,54 @@ kind load docker-image ghcr.io/karan-wakade/smu:latest --name smu
 
 # Apply secrets
 Write-Host "Applying secrets..." -ForegroundColor Green
-./scripts/apply-secrets.ps1 -Namespace `$Namespace
+./scripts/apply-secrets.ps1 -Namespace $Namespace
 
 # Apply Kubernetes resources
-Write-Host "Deploying application resources for environment: `$Environment..." -ForegroundColor Green
-kubectl apply -k kubernetes/overlays/`$Environment -n `$Namespace
+Write-Host "Deploying application resources for environment: $Environment..." -ForegroundColor Green
+kubectl apply -k kubernetes/overlays/$Environment -n $Namespace
 
 # Wait for deployment to be ready
-`$deploymentName = "`$Environment-rollout"
-Write-Host "Waiting for deployment `$deploymentName to be ready..." -ForegroundColor Yellow
+$deploymentName = "$Environment-rollout"
+Write-Host "Waiting for deployment $deploymentName to be ready..." -ForegroundColor Yellow
 
 # Try a few times in case it times out
-`$maxAttempts = 3
-`$success = `$false
+$maxAttempts = 3
+$success = $false
 
-for (`$attempt = 1; `$attempt -le `$maxAttempts; `$attempt++) {
+for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
     try {
-        Write-Host "Attempt `$attempt of `$maxAttempts..." -ForegroundColor Yellow
-        kubectl rollout status deployment/`$deploymentName -n `$Namespace --timeout=60s
-        `$success = `$true
+        Write-Host "Attempt $attempt of $maxAttempts..." -ForegroundColor Yellow
+        kubectl rollout status deployment/$deploymentName -n $Namespace --timeout=60s
+        $success = $true
         break
     } catch {
         Write-Host "Deployment status check timed out, checking deployment status..." -ForegroundColor Yellow
-        kubectl get deployment `$deploymentName -n `$Namespace
+        kubectl get deployment $deploymentName -n $Namespace
     }
 }
 
 # Get service information
-`$serviceIP = kubectl get service "`$deploymentName-service" -n `$Namespace -o jsonpath='{.spec.clusterIP}'
-`$servicePort = kubectl get service "`$deploymentName-service" -n `$Namespace -o jsonpath='{.spec.ports[0].port}'
+$serviceIP = kubectl get service "$deploymentName-service" -n $Namespace -o jsonpath='{.spec.clusterIP}'
+$servicePort = kubectl get service "$deploymentName-service" -n $Namespace -o jsonpath='{.spec.ports[0].port}'
 
 Write-Host "Application deployed successfully!" -ForegroundColor Green
-Write-Host "Service available at: http://`$serviceIP:`$servicePort within the cluster" -ForegroundColor Green
-Write-Host "To access locally, run: ./scripts/port-forward.ps1 -Environment `$Environment -LocalPort 8080" -ForegroundColor Green
-"@ | Out-File -FilePath "scripts\deploy-app.ps1" -Encoding utf8
+Write-Host "Service available at: http://$serviceIP:$servicePort within the cluster" -ForegroundColor Green
+Write-Host "To access locally, run: ./scripts/port-forward.ps1 -Environment $Environment -LocalPort 8080" -ForegroundColor Green
+'@
+Set-Content -Path "scripts\deploy-app.ps1" -Value $deployAppScript -Encoding UTF8
 
-# Create monitoring dashboard script
-@"
+# Create grafana-dashboard.ps1
+Write-Host "Creating grafana-dashboard.ps1..." -ForegroundColor Green
+$grafanaDashboardScript = @'
 param (
-    [string]`$Namespace = "monitoring"
+    [string]$Namespace = "monitoring"
 )
 
 # Start port-forwarding for Grafana
 Write-Host "Setting up port forwarding for Grafana..." -ForegroundColor Green
-`$grafanaPod = kubectl get pods -n `$Namespace -l "app.kubernetes.io/name=grafana" -o name
+$grafanaPod = kubectl get pods -n $Namespace -l "app.kubernetes.io/name=grafana" -o name
 
-if (-not `$grafanaPod) {
+if (-not $grafanaPod) {
     Write-Host "ERROR: Grafana pod not found!" -ForegroundColor Red
     exit 1
 }
@@ -391,18 +409,20 @@ Write-Host "Grafana will be available at http://localhost:3000" -ForegroundColor
 Write-Host "Username: admin" -ForegroundColor Green
 
 # Get password
-`$encodedPassword = kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}"
-`$adminPassword = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(`$encodedPassword))
-Write-Host "Password: `$adminPassword" -ForegroundColor Green
+$encodedPassword = kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}"
+$adminPassword = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($encodedPassword))
+Write-Host "Password: $adminPassword" -ForegroundColor Green
 
 Write-Host "Press Ctrl+C to stop port forwarding" -ForegroundColor Yellow
-kubectl port-forward -n `$Namespace `$grafanaPod 3000:3000
-"@ | Out-File -FilePath "scripts\grafana-dashboard.ps1" -Encoding utf8
+kubectl port-forward -n $Namespace $grafanaPod 3000:3000
+'@
+Set-Content -Path "scripts\grafana-dashboard.ps1" -Value $grafanaDashboardScript -Encoding UTF8
 
-# Create restart script
-@"
+# Create restart-cluster.ps1
+Write-Host "Creating restart-cluster.ps1..." -ForegroundColor Green
+$restartClusterScript = @'
 param (
-    [switch]`$ForceRecreate = `$false
+    [switch]$ForceRecreate = $false
 )
 
 # Check if Kind is installed
@@ -420,8 +440,8 @@ try {
 }
 
 # Check if cluster exists
-`$clusterExists = kind get clusters | Where-Object { `$_ -eq "smu" }
-if (`$clusterExists -and `$ForceRecreate) {
+$clusterExists = kind get clusters | Where-Object { $_ -eq "smu" }
+if ($clusterExists -and $ForceRecreate) {
     Write-Host "Deleting existing cluster..." -ForegroundColor Yellow
     kind delete cluster --name smu
     kind create cluster --name smu --config kind-config.yaml
@@ -434,7 +454,7 @@ if (`$clusterExists -and `$ForceRecreate) {
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
     
     Write-Host "Cluster has been recreated. Please run scripts/deploy-app.ps1 to redeploy your application." -ForegroundColor Green
-} elseif (`$clusterExists) {
+} elseif ($clusterExists) {
     Write-Host "Restarting Docker container for Kind cluster..." -ForegroundColor Yellow
     docker restart kind-control-plane kind-worker
     
@@ -446,23 +466,23 @@ if (`$clusterExists -and `$ForceRecreate) {
     kubectl config use-context kind-smu
     
     # Wait for node to be ready
-    `$ready = `$false
-    `$attempts = 0
-    `$maxAttempts = 12
+    $ready = $false
+    $attempts = 0
+    $maxAttempts = 12
     
-    while (-not `$ready -and `$attempts -lt `$maxAttempts) {
-        `$attempts++
-        `$nodeStatus = kubectl get nodes -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}'
+    while (-not $ready -and $attempts -lt $maxAttempts) {
+        $attempts++
+        $nodeStatus = kubectl get nodes -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}'
         
-        if (`$nodeStatus -eq "True") {
-            `$ready = `$true
+        if ($nodeStatus -eq "True") {
+            $ready = $true
         } else {
-            Write-Host "Waiting for nodes to be ready (attempt `$attempts/`$maxAttempts)..." -ForegroundColor Yellow
+            Write-Host "Waiting for nodes to be ready (attempt $attempts/$maxAttempts)..." -ForegroundColor Yellow
             Start-Sleep -Seconds 5
         }
     }
     
-    if (`$ready) {
+    if ($ready) {
         Write-Host "Cluster is ready!" -ForegroundColor Green
     } else {
         Write-Host "Cluster did not become ready in time. You might need to recreate it with -ForceRecreate." -ForegroundColor Yellow
@@ -472,7 +492,8 @@ if (`$clusterExists -and `$ForceRecreate) {
     kind create cluster --name smu --config kind-config.yaml
     kubectl config use-context kind-smu
 }
-"@ | Out-File -FilePath "scripts\restart-cluster.ps1" -Encoding utf8
+'@
+Set-Content -Path "scripts\restart-cluster.ps1" -Value $restartClusterScript -Encoding UTF8
 
 Write-Host "Created helper scripts in the 'scripts' directory:" -ForegroundColor Green
 Write-Host "  - apply-secrets.ps1: Apply secrets from .env.local file" -ForegroundColor Green
@@ -492,7 +513,7 @@ if (-not (Test-Path $kubernetesBasePath)) {
     New-Item -ItemType Directory -Path $kubernetesBasePath -Force | Out-Null
     
     # Create base deployment
-    @"
+    $baseDeployment = @'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -522,10 +543,11 @@ spec:
         envFrom:
         - secretRef:
             name: smu-config
-"@ | Out-File -FilePath "$kubernetesBasePath\deployment.yaml" -Encoding utf8
+'@
+    Set-Content -Path "$kubernetesBasePath\deployment.yaml" -Value $baseDeployment -Encoding UTF8
     
     # Create base service
-    @"
+    $baseService = @'
 apiVersion: v1
 kind: Service
 metadata:
@@ -537,17 +559,19 @@ spec:
   - port: 80
     targetPort: 8080
   type: ClusterIP
-"@ | Out-File -FilePath "$kubernetesBasePath\service.yaml" -Encoding utf8
+'@
+    Set-Content -Path "$kubernetesBasePath\service.yaml" -Value $baseService -Encoding UTF8
     
     # Create base kustomization
-    @"
+    $baseKustomization = @'
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
 - deployment.yaml
 - service.yaml
-"@ | Out-File -FilePath "$kubernetesBasePath\kustomization.yaml" -Encoding utf8
+'@
+    Set-Content -Path "$kubernetesBasePath\kustomization.yaml" -Value $baseKustomization -Encoding UTF8
 }
 
 # Create staging overlay if it doesn't exist
@@ -557,7 +581,7 @@ if (-not (Test-Path $kubernetesOverlayPath)) {
     New-Item -ItemType Directory -Path $kubernetesOverlayPath -Force | Out-Null
     
     # Create staging kustomization
-    @"
+    $stagingKustomization = @'
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -568,10 +592,11 @@ namePrefix: staging-
 
 patches:
 - path: deployment-patch.yaml
-"@ | Out-File -FilePath "$kubernetesOverlayPath\kustomization.yaml" -Encoding utf8
+'@
+    Set-Content -Path "$kubernetesOverlayPath\kustomization.yaml" -Value $stagingKustomization -Encoding UTF8
     
     # Create staging deployment patch
-    @"
+    $stagingDeploymentPatch = @'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -589,7 +614,8 @@ spec:
           limits:
             cpu: 100m
             memory: 128Mi
-"@ | Out-File -FilePath "$kubernetesOverlayPath\deployment-patch.yaml" -Encoding utf8
+'@
+    Set-Content -Path "$kubernetesOverlayPath\deployment-patch.yaml" -Value $stagingDeploymentPatch -Encoding UTF8
 }
 
 Write-Host "Kubernetes manifests are ready!" -ForegroundColor Green
