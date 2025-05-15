@@ -46,5 +46,5 @@ $serviceIP = kubectl get service "$deploymentName-service" -n $Namespace -o json
 $servicePort = kubectl get service "$deploymentName-service" -n $Namespace -o jsonpath='{.spec.ports[0].port}'
 
 Write-Host "Application deployed successfully!" -ForegroundColor Green
-Write-Host "Service available at: http://$serviceIP:$servicePort within the cluster" -ForegroundColor Green
+Write-Host "Service available at: http://${serviceIP}:${servicePort} within the cluster" -ForegroundColor Green
 Write-Host "To access locally, run: ./scripts/port-forward.ps1 -Environment $Environment -LocalPort 8080" -ForegroundColor Green

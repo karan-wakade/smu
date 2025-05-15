@@ -63,16 +63,50 @@ if (-not $SkipMonitoring) {
         --set grafana.service.type=ClusterIP
     
     # Wait for Grafana to be ready
-    Write-Host "Waiting for Grafana to be ready..." -ForegroundColor Yellow
-    kubectl wait --namespace monitoring --for=condition=ready pod --selector=app.kubernetes.io/name=grafana --timeout=90s
+Write-Host "Waiting for Grafana to be ready..." -ForegroundColor Yellow
+$grafanaReady = $false
+$maxAttempts = 12
+$attempt = 0
+
+while (-not $grafanaReady -and $attempt -lt $maxAttempts) {
+    $attempt++
+    Write-Host "Checking Grafana pods (attempt $attempt/$maxAttempts)..." -ForegroundColor Yellow
     
-    # Get Grafana admin password - FIXED SYNTAX
-    $encodedPassword = kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}"
-    $adminPassword = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($encodedPassword))
+    $pods = kubectl get pods -n monitoring -l "app.kubernetes.io/name=grafana" -o jsonpath="{.items[*].status.phase}"
+    if ($pods -eq "Running") {
+        $grafanaReady = $true
+        Write-Host "Grafana pod is running!" -ForegroundColor Green
+    } else {
+        Write-Host "Grafana pod not ready yet, waiting 10 seconds..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 10
+    }
+}
+
+# Get Grafana admin password with error handling
+$adminPassword = "admin"  # Default fallback
+try {
+    Write-Host "Attempting to retrieve Grafana admin password..." -ForegroundColor Yellow
     
-    Write-Host "Grafana is available at: http://localhost:3000" -ForegroundColor Green
-    Write-Host "Username: admin" -ForegroundColor Green
-    Write-Host "Password: $adminPassword" -ForegroundColor Green
+    # Wait a bit for the secret to be available
+    Start-Sleep -Seconds 5
+    
+    $encodedPassword = kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" 2>$null
+    
+    if ($encodedPassword) {
+        $adminPassword = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($encodedPassword))
+        Write-Host "Successfully retrieved Grafana password." -ForegroundColor Green
+    } else {
+        Write-Host "Couldn't retrieve Grafana password. Using default 'admin'." -ForegroundColor Yellow
+    }
+}
+catch {
+    Write-Host "Error retrieving Grafana password: $_" -ForegroundColor Yellow
+    Write-Host "Using default password 'admin' instead." -ForegroundColor Yellow
+}
+
+Write-Host "Grafana is available at: http://localhost:3000" -ForegroundColor Green
+Write-Host "Username: admin" -ForegroundColor Green
+Write-Host "Password: $adminPassword" -ForegroundColor Green
 }
 
 # Display success message
