@@ -97,18 +97,6 @@ jobs:
           # Test the CLI
           & $cliPath version
 
-      # - name: Install Argo Rollouts CLI
-      #   shell: powershell
-      #   run: |
-      #     Write-Host "Downloading Argo Rollouts CLI using curl..."
-      #     curl.exe -L -o kubectl-argo-rollouts.exe https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe
-
-      #     # Add to PATH for this session
-      #     $env:PATH = "$PWD;$env:PATH"
-
-      #     # Verify installation
-      #     ./kubectl-argo-rollouts.exe version
-
       - name: Set up Kubeconfig
         shell: powershell
         run: |
@@ -159,21 +147,58 @@ jobs:
           Write-Host "Environment variables:"
           Get-ChildItem Env: | Format-Table -AutoSize
 
-      - name: Deploy Kubernetes Resources
+      - name: Check Argo Rollouts Status
+        shell: powershell
+        id: rollouts-check
+        continue-on-error: true
+        run: |
+          # Check if Argo Rollouts controller is running
+          Write-Host "Checking Argo Rollouts controller status..."
+          $controllerPods = kubectl get pods -n argo-rollouts -l app.kubernetes.io/component=rollouts-controller -o jsonpath='{.items[*].status.phase}' --ignore-not-found
+
+          if ($controllerPods -match "Running") {
+            Write-Host "Argo Rollouts controller is running."
+            echo "USE_STANDARD_DEPLOYMENT=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            Write-Host "Argo Rollouts controller not found or not running. Will use standard deployments."
+            echo "USE_STANDARD_DEPLOYMENT=true" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
+
+      - name: Convert to Standard Deployment
+        if: env.USE_STANDARD_DEPLOYMENT == 'true'
         shell: powershell
         run: |
-          # Determine which overlay to use based on branch
+          # Settings
           $overlay = if ("${{ github.ref_name }}" -eq "main") { "production" } else { "staging" }          Write-Host "Using overlay: $overlay"
-          Write-Host "Using overlay: $overlay"
 
-          # Update kustomization.yaml to use 'labels' instead of 'commonLabels'
-          $kustomizationPath = "kubernetes/overlays/$overlay/kustomization.yaml"
+          # Convert rollout.yaml to deployment.yaml
+          Write-Host "Converting rollout.yaml to standard deployment.yaml..."
+          $rolloutContent = Get-Content -Path "kubernetes/overlays/$($overlay)/rollout.yaml" -Raw
+
+          # Replace Rollout specific parts with Deployment
+          $deploymentContent = $rolloutContent -replace "apiVersion: argoproj.io/v1alpha1", "apiVersion: apps/v1" `
+                                              -replace "kind: Rollout", "kind: Deployment"
+
+          # Remove the strategy section that's specific to Argo Rollouts
+          if ($deploymentContent -match "(?s)(\s+strategy:\s+canary:.*?)(\s+selector:|\s+template:)") {
+            $deploymentContent = $deploymentContent -replace "(?s)(\s+strategy:\s+canary:.*?)(\s+selector:|\s+template:)", "$2"
+          }
+
+          # Add a standard deployment strategy
+          if ($deploymentContent -match "(?s)(\s+selector:)") {
+            $deploymentContent = $deploymentContent -replace "(?s)(\s+selector:)", "  strategy:`n    type: RollingUpdate`n    rollingUpdate:`n      maxSurge: 1`n      maxUnavailable: 0`n$1"
+          }
+
+          # Save the deployment file
+          $deploymentContent | Out-File -FilePath "kubernetes/overlays/$($overlay)/deployment.yaml" -Encoding utf8
+
+          # Update kustomization.yaml to use deployment instead of rollout
           $kustomizationContent = @"
           apiVersion: kustomize.config.k8s.io/v1beta1
           kind: Kustomization
 
           resources:
-          - rollout.yaml
+          - deployment.yaml
 
           namespace: ${{ env.KUBERNETES_NAMESPACE }}
 
@@ -182,79 +207,133 @@ jobs:
               app: smu
               environment: $overlay
           "@
-          $kustomizationContent | Out-File -FilePath $kustomizationPath -Encoding utf8
+          $kustomizationContent | Out-File -FilePath "kubernetes/overlays/$($overlay)/kustomization.yaml" -Encoding utf8
 
-          # List files to verify
-          Write-Host "Files in kubernetes/overlays/$($overlay):"
-          Get-ChildItem -Path "kubernetes/overlays/$overlay" -Recurse
+          Write-Host "Converted to standard Kubernetes deployment"
 
-          # Apply the configuration
-          cd "kubernetes/overlays/$overlay"
-          kubectl apply -k .
-
-          # Wait for rollout to be ready - FIXED COMMAND
+      - name: Deploy and Update
+        shell: powershell
+        run: |
+          # Settings
+          $overlay = if ("${{ github.ref_name }}" -eq "main") { "production" } else { "staging" }          Write-Host "Using overlay: $overlay"
           $namespace = "${{ env.KUBERNETES_NAMESPACE }}"
-          $rolloutName = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
+          $useStandardDeployment = "${{ env.USE_STANDARD_DEPLOYMENT }}" -eq "true"
+          $resourceName = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }          $resourceType = $useStandardDeployment ? "deployment" : "rollout"
 
-          Write-Host "Waiting for rollout '$($rolloutName)' in namespace '$($namespace)' to be ready..."
-          try {
-            # Use the full resource type for Argo Rollouts
-            kubectl wait --for=condition=Progressing "rollouts.argoproj.io/$rolloutName" -n $namespace --timeout=30s
-            Write-Host "Rollout '$rolloutName' is ready"
-          } catch {
-            Write-Host "WARNING: Rollout not ready in time or error occurred:"
-            Write-Host $_
-            # Continue anyway since the rollout was created
+          # Apply with retries
+          cd "kubernetes/overlays/$overlay"
+          Write-Host "Applying Kubernetes resources ($resourceType)..."
+
+          $maxAttempts = 3
+          $success = $false
+
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            Write-Host "Attempt $attempt of $maxAttempts"
+            
+            try {
+              kubectl apply -k . --timeout=30s
+              $success = $true
+              break
+            } catch {
+              Write-Host "Error applying resources: $_"
+              if ($attempt -lt $maxAttempts) {
+                Write-Host "Waiting 5 seconds before retry..."
+                Start-Sleep -Seconds 5
+              }
+            }
           }
+
+          if (-not $success) {
+            Write-Host "ERROR: Failed to apply resources after $maxAttempts attempts!"
+            exit 1
+          }
+
+          # Update the image based on deployment type
+          Write-Host "Updating container image for $resourceType/$resourceName..."
+
+          if ($useStandardDeployment) {
+            # Standard kubectl approach for Deployments
+            kubectl set image deployment/$resourceName smu-container=${{ env.IMAGE_NAME }}:${{ github.sha }} -n $namespace
+            
+            # Watch rollout status for Deployment
+            Write-Host "Watching deployment rollout status..."
+            kubectl rollout status deployment/$resourceName -n $namespace --timeout=2m
+          } else {
+            # Argo Rollouts approach
+            kubectl argo rollouts set image $resourceName smu-container=${{ env.IMAGE_NAME }}:${{ github.sha }} -n $namespace
+            
+            # Try to watch status, but continue even if it fails
+            try {
+              Write-Host "Watching Argo Rollouts status..."
+              kubectl argo rollouts status $resourceName -n $namespace --timeout=30s
+            } catch {
+              Write-Host "Warning: Couldn't watch rollout status: $_"
+              Write-Host "Argo Rollouts status command timed out, but the update might still be in progress."
+              Write-Host "You can check the status later manually."
+            }
+          }
+
+          Write-Host "Deployment completed successfully!"
 
       # - name: Deploy Kubernetes Resources
       #   shell: powershell
       #   run: |
       #     # Determine which overlay to use based on branch
       #     $overlay = if ("${{ github.ref_name }}" -eq "main") { "production" } else { "staging" }          Write-Host "Using overlay: $overlay"
+      #     Write-Host "Using overlay: $overlay"
 
-      #     # Apply Kustomize configuration
-      #     cd kubernetes/overlays/$overlay
+      #     # Update kustomization.yaml to use 'labels' instead of 'commonLabels'
+      #     $kustomizationPath = "kubernetes/overlays/$overlay/kustomization.yaml"
+      #     $kustomizationContent = @"
+      #     apiVersion: kustomize.config.k8s.io/v1beta1
+      #     kind: Kustomization
+
+      #     resources:
+      #     - rollout.yaml
+
+      #     namespace: ${{ env.KUBERNETES_NAMESPACE }}
+
+      #     labels:
+      #     - pairs:
+      #         app: smu
+      #         environment: $overlay
+      #     "@
+      #     $kustomizationContent | Out-File -FilePath $kustomizationPath -Encoding utf8
 
       #     # List files to verify
-      #     # Write-Host "Files in kubernetes/overlays/$overlay:"
-      #     Get-ChildItem -Recurse
+      #     Write-Host "Files in kubernetes/overlays/$($overlay):"
+      #     Get-ChildItem -Path "kubernetes/overlays/$overlay" -Recurse
 
       #     # Apply the configuration
+      #     cd "kubernetes/overlays/$overlay"
       #     kubectl apply -k .
 
-      #     # Wait for rollout to be ready
+      #     # Wait for rollout to be ready - FIXED COMMAND
       #     $namespace = "${{ env.KUBERNETES_NAMESPACE }}"
-      #     $ROLLOUT_NAME = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
-      #     Write-Host "Waiting for rollout $rolloutName in namespace $namespace to be ready..."
+      #     $rolloutName = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
+
+      #     Write-Host "Waiting for rollout '$($rolloutName)' in namespace '$($namespace)' to be ready..."
       #     try {
-      #       kubectl wait --for=condition=Progressing rollout/$rolloutName -n $namespace --timeout=30s
-      #       Write-Host "Rollout is ready"
+      #       # Use the full resource type for Argo Rollouts
+      #       kubectl wait --for=condition=Progressing "rollouts.argoproj.io/$rolloutName" -n $namespace --timeout=30s
+      #       Write-Host "Rollout '$rolloutName' is ready"
       #     } catch {
-      #       Write-Host "WARNING: Rollout not ready in time. Will attempt to proceed anyway."
+      #       Write-Host "WARNING: Rollout not ready in time or error occurred:"
+      #       Write-Host $_
+      #       # Continue anyway since the rollout was created
       #     }
 
-      - name: Update Rollout Image
-        shell: powershell
-        run: |
-          # Get the new image tag
-          $IMAGE_TAG = "${{ github.sha }}"
-          $SHORT_SHA = $IMAGE_TAG.Substring(0, 7)
-          $FULL_IMAGE = "${{ env.IMAGE_NAME }}:sha-$SHORT_SHA"
-
-          # Update the rollout with the new image
-          $ROLLOUT_NAME = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
-          kubectl argo rollouts set image $ROLLOUT_NAME smu=$FULL_IMAGE -n ${{ env.KUBERNETES_NAMESPACE }}
-
       # - name: Update Rollout Image
+      #   shell: powershell
       #   run: |
       #     # Get the new image tag
-      #     $IMAGE_TAG="${{ github.sha }}"
-      #     $SHORT_SHA="${IMAGE_TAG:0:7}"
-      #     $FULL_IMAGE="${{ env.IMAGE_NAME }}:sha-$SHORT_SHA"
+      #     $IMAGE_TAG = "${{ github.sha }}"
+      #     $SHORT_SHA = $IMAGE_TAG.Substring(0, 7)
+      #     $FULL_IMAGE = "${{ env.IMAGE_NAME }}:sha-$SHORT_SHA"
 
       #     # Update the rollout with the new image
-      #     kubectl argo rollouts set image ${{ github.ref_name == 'main' ? 'production' : 'staging' }}-rollout smu=$FULL_IMAGE -n ${{ env.KUBERNETES_NAMESPACE }}
+      #     $ROLLOUT_NAME = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }
+      #     kubectl argo rollouts set image $ROLLOUT_NAME smu=$FULL_IMAGE -n ${{ env.KUBERNETES_NAMESPACE }}
 
       - name: Watch Rollout
         shell: powershell
@@ -279,10 +358,6 @@ jobs:
           Write-Error "Rollout did not complete within timeout period"
           exit 1
 
-      # - name: Watch Rollout
-      #   run: |
-      #     kubectl argo rollouts get rollout ${{ github.ref_name == 'main' ? 'production' : 'staging' }}-rollout -n ${{ env.KUBERNETES_NAMESPACE }} -w
-
       - name: Promote Rollout (if needed)
         if: github.ref_name == 'main'
         shell: powershell
@@ -294,8 +369,3 @@ jobs:
             Write-Error "Failed to promote rollout: $_"
             exit 1
           }
-
-      # - name: Promote Rollout (if needed)
-      #   if: github.ref_name == 'main'
-      #   run: |
-      #     kubectl argo rollouts promote ${{ github.ref_name == 'main' ? 'production' : 'staging' }}-rollout -n ${{ env.KUBERNETES_NAMESPACE }}
