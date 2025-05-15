@@ -132,6 +132,33 @@ jobs:
           # Set environment variable for subsequent steps
           echo "KUBECONFIG=$kubeDir\config" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+      - name: Diagnose Rollout Issues
+        shell: powershell
+        run: |
+          # Print current namespace
+          Write-Host "Current namespace: $(kubectl config view --minify -o jsonpath='{..namespace}')"
+
+          # List all namespaces to find where rollouts exist
+          Write-Host "All namespaces in the cluster:"
+          kubectl get namespaces
+
+          # Check if Argo Rollouts CRD is installed
+          Write-Host "Checking if Argo Rollouts CRD is installed:"
+          kubectl get crd | findstr rollouts
+
+          # List rollouts across all namespaces
+          Write-Host "All rollouts in the cluster:"
+          kubectl get rollouts --all-namespaces
+
+          # List all resources in the target namespace
+          $namespace = "${{ env.KUBERNETES_NAMESPACE }}"
+          Write-Host "All resources in namespace $namespace:"
+          kubectl get all -n $namespace
+
+          # Show environment variables for debugging
+          Write-Host "Environment variables:"
+          Get-ChildItem Env: | Format-Table -AutoSize
+
       - name: Update Rollout Image
         shell: powershell
         run: |
