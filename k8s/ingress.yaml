@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smu-ingress
+  annotations:
+    # Remove any Kind-specific annotations
+    # Add Minikube-specific annotations
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - host: smu.local  # You can use this with minikube ip in /etc/hosts
+    http:
+      paths:
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: smu-app
+            port:
+              number: 80

@@ -1,0 +1,52 @@
+name: Deploy Application
+
+on:
+  push:
+    branches: [ main, deploy ]
+  pull_request:
+    branches: [ main, deploy ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      # Replace Kind setup with Minikube
+      - name: Setup Minikube
+        uses: medyagh/setup-minikube@master
+        with:
+          minikube-version: 1.28.0
+          driver: docker
+          kubernetes-version: v1.26.3
+      
+      # This step ensures kubectl uses the Minikube context
+      - name: Configure kubectl
+        run: |
+          minikube update-context
+          kubectl config use-context minikube
+          kubectl get pods -A
+      
+      # Build and push to GitHub Container Registry
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/karan-wakade/smu:latest
+          # Add authentication for GHCR here
+        env:
+          # GitHub Container Registry credentials
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+      
+      # Deploy to Minikube
+      - name: Deploy to Minikube
+        run: |
+          # Pull the image to Minikube
+          minikube image pull ghcr.io/karan-wakade/smu:latest
+          # Apply Kubernetes manifests
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/ingress.yaml
+          # Wait for deployment to complete
+          kubectl rollout status deployment/smu-app

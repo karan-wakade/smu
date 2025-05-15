@@ -1,0 +1,21 @@
+# No changes needed unless you have Kind-specific configurations
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smu-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: smu
+  template:
+    metadata:
+      labels:
+        app: smu
+    spec:
+      containers:
+      - name: smu-app
+        image: ghcr.io/karan-wakade/smu:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
