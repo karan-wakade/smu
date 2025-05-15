@@ -169,7 +169,7 @@ jobs:
           cd kubernetes/overlays/$overlay
 
           # List files to verify
-          Write-Host "Files in kubernetes/overlays/$overlay:"
+          # Write-Host "Files in kubernetes/overlays/$overlay:"
           Get-ChildItem -Recurse
 
           # Apply the configuration
