@@ -62,116 +62,24 @@ jobs:
           $env:KUBECONFIG = $configPath
           kubectl cluster-info
 
-      - name: Install Argo Rollouts CLI
+      - name: Setup Argo Rollouts CLI
         shell: powershell
         run: |
-          # Enable TLS 1.2 (often required for modern HTTPS connections)
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-          # Set variables
+          # Use pre-downloaded CLI from repository
           $binDir = "$env:USERPROFILE\bin"
-          $cliName = "kubectl-argo-rollouts.exe"
-          $cliPath = "$binDir\$cliName"
-          $url = "https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe"
-
-          # Create bin directory if needed
           if (-not (Test-Path $binDir)) {
               New-Item -ItemType Directory -Force -Path $binDir | Out-Null
-              Write-Host "Created directory: $binDir"
           }
 
-          # Try multiple download methods
-          Write-Host "Downloading Argo Rollouts CLI from $url"
-
-          $downloadSuccess = $false
-
-          # Method 1: Invoke-WebRequest with exception handling
-          try {
-              Invoke-WebRequest -Uri $url -OutFile $cliPath -UseBasicParsing -TimeoutSec 60
-              if (Test-Path $cliPath) {
-                  $downloadSuccess = $true
-                  Write-Host "Download successful using Invoke-WebRequest"
-              }
-          }
-          catch {
-              Write-Host "Invoke-WebRequest failed: $_"
-          }
-
-          # Method 2: Try with .NET WebClient if Method 1 failed
-          if (-not $downloadSuccess) {
-              try {
-                  Write-Host "Trying alternative download method with WebClient..."
-                  $webClient = New-Object System.Net.WebClient
-                  $webClient.DownloadFile($url, $cliPath)
-                  
-                  if (Test-Path $cliPath) {
-                      $downloadSuccess = $true
-                      Write-Host "Download successful using WebClient"
-                  }
-              }
-              catch {
-                  Write-Host "WebClient download failed: $_"
-              }
-          }
-
-          # Method 3: Try with System.Net.Http.HttpClient
-          if (-not $downloadSuccess) {
-              try {
-                  Write-Host "Trying download with HttpClient..."
-                  Add-Type -AssemblyName System.Net.Http
-                  $client = New-Object System.Net.Http.HttpClient
-                  $response = $client.GetAsync($url).Result
-                  $response.EnsureSuccessStatusCode()
-                  $fileStream = [System.IO.File]::Create($cliPath)
-                  $response.Content.CopyToAsync($fileStream).Wait()
-                  $fileStream.Close()
-                  
-                  if (Test-Path $cliPath) {
-                      $downloadSuccess = $true
-                      Write-Host "Download successful using HttpClient"
-                  }
-              }
-              catch {
-                  Write-Host "HttpClient download failed: $_"
-              }
-          }
-
-          # Method 4: Try with BITS Transfer (Windows-specific)
-          if (-not $downloadSuccess) {
-              try {
-                  Write-Host "Trying download with BITS Transfer..."
-                  Start-BitsTransfer -Source $url -Destination $cliPath
-                  
-                  if (Test-Path $cliPath) {
-                      $downloadSuccess = $true
-                      Write-Host "Download successful using BITS Transfer"
-                  }
-              }
-              catch {
-                  Write-Host "BITS Transfer download failed: $_"
-              }
-          }
-
-          # Verify download success
-          if (-not $downloadSuccess) {
-              Write-Host "All download methods failed. Cannot install Argo Rollouts CLI."
-              exit 1
-          }
+          # Copy from repository to bin directory
+          Copy-Item ".github\tools\kubectl-argo-rollouts.exe" -Destination "$binDir\kubectl-argo-rollouts.exe"
 
           # Add to PATH
-          Write-Host "Adding $binDir to PATH"
           echo "$binDir" | Out-File -FilePath $env:GITHUB_PATH -Append
           $env:PATH = "$binDir;$env:PATH"
 
-          # Verify installation
-          try {
-              & $cliPath version
-              Write-Host "Argo Rollouts CLI installed successfully!"
-          }
-          catch {
-              Write-Host "Warning: CLI installed but verification failed: $_"
-              Write-Host "Continuing workflow..."
-          }
+          # Test the copied CLI
+          & "$binDir\kubectl-argo-rollouts.exe" version
 
       # - name: Install Argo Rollouts CLI
       #   shell: powershell
