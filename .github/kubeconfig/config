@@ -1,18 +1,35 @@
-﻿apiVersion: v1
-kind: Config
+apiVersion: v1
 clusters:
-  - name: minikube
-    cluster:
-      server: https://127.0.0.1:55906/
-      insecure-skip-tls-verify: true
-users:
-  - name: github-actions-runner
-    user:
-      token: eyJhbGciOiJSUzI1NiIsImtpZCI6IjB5VUo5NHhyYjAzRnRDU0dHMzQwZ0J2bFJjdC1vMjdzQWQzRkpRVnNVdG8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzc4Nzg5MDAyLCJpYXQiOjE3NDcyNTMwMDIsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiMzVhYzhhOGQtMjBjMy00ZTdjLTk3MTktMmYwYzJhY2FkMDYwIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJnaXRodWItYWN0aW9ucyIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJnaXRodWItYWN0aW9ucy1ydW5uZXIiLCJ1aWQiOiJlYzU5MGU0Ni1lNGY2LTQ2YzUtOWNmMS1iNDg2ZWFjMjJlY2IifX0sIm5iZiI6MTc0NzI1MzAwMiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmdpdGh1Yi1hY3Rpb25zOmdpdGh1Yi1hY3Rpb25zLXJ1bm5lciJ9.kshrsMOp1vrmSl8tlYVVoe1MLILRXA03NHaB00-M00FETIJ09domgzylf7_K0soP5X_f7MxHpxcNkvAoPO11d6Oh3JluN1NtQuVUA5r0QzdhZ6OU9n-k_DCXfn-SqHDtCcd-QZQyC7MZl0PUturExDMuxlV3ySYEjy-Ni4cRo0pXDswBeep7GI5dAvC4nEMhsemwuLF4GGq7TIfvGAkKvotkOKuEwZb71dDYUgHdxuRh_W_7yj4UsmhikUBr1pfYLznAueet9McOqxbDiQ_d4ymO6hyKYJ8erpHb7zDeJ_AgcU36GMTL-tOtyBOJaBhD2YumuEWovqpBVjku6r0HpQ
+- cluster:
+    certificate-authority: C:\Users\ASUS\.minikube\ca.crt
+    extensions:
+    - extension:
+        last-update: Thu, 15 May 2025 09:55:44 IST
+        provider: minikube.sigs.k8s.io
+        version: v1.35.0
+      name: cluster_info
+    server: https://127.0.0.1:60711
+  name: minikube
 contexts:
-  - name: minikube
-    context:
-      cluster: minikube
-      user: github-actions-runner
-      namespace: default
+- context:
+    cluster: minikube
+    extensions:
+    - extension:
+        last-update: Thu, 15 May 2025 09:55:44 IST
+        provider: minikube.sigs.k8s.io
+        version: v1.35.0
+      name: context_info
+    namespace: default
+    user: minikube
+  name: minikube
 current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: github-actions-runner
+  user:
+    token: eyJhbGciOiJSUzI1NiIsImtpZCI6IjB5VUo5NHhyYjAzRnRDU0dHMzQwZ0J2bFJjdC1vMjdzQWQzRkpRVnNVdG8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzc4Nzg5MDAyLCJpYXQiOjE3NDcyNTMwMDIsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiMzVhYzhhOGQtMjBjMy00ZTdjLTk3MTktMmYwYzJhY2FkMDYwIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJnaXRodWItYWN0aW9ucyIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJnaXRodWItYWN0aW9ucy1ydW5uZXIiLCJ1aWQiOiJlYzU5MGU0Ni1lNGY2LTQ2YzUtOWNmMS1iNDg2ZWFjMjJlY2IifX0sIm5iZiI6MTc0NzI1MzAwMiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmdpdGh1Yi1hY3Rpb25zOmdpdGh1Yi1hY3Rpb25zLXJ1bm5lciJ9.kshrsMOp1vrmSl8tlYVVoe1MLILRXA03NHaB00-M00FETIJ09domgzylf7_K0soP5X_f7MxHpxcNkvAoPO11d6Oh3JluN1NtQuVUA5r0QzdhZ6OU9n-k_DCXfn-SqHDtCcd-QZQyC7MZl0PUturExDMuxlV3ySYEjy-Ni4cRo0pXDswBeep7GI5dAvC4nEMhsemwuLF4GGq7TIfvGAkKvotkOKuEwZb71dDYUgHdxuRh_W_7yj4UsmhikUBr1pfYLznAueet9McOqxbDiQ_d4ymO6hyKYJ8erpHb7zDeJ_AgcU36GMTL-tOtyBOJaBhD2YumuEWovqpBVjku6r0HpQ
+- name: minikube
+  user:
+    client-certificate: C:\Users\ASUS\.minikube\profiles\minikube\client.crt
+    client-key: C:\Users\ASUS\.minikube\profiles\minikube\client.key
