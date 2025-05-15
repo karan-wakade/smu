@@ -118,10 +118,11 @@ jobs:
           Write-Host "Building Docker image locally: $IMAGE_NAME"
 
           # Build the image locally without pushing
-          docker build -t $IMAGE_NAME:$SHA_TAG -t $IMAGE_NAME:$LATEST_TAG .
+          # docker build -t $IMAGE_NAME:$SHA_TAG -t $IMAGE_NAME:$LATEST_TAG .
+          docker build -t ${IMAGE_NAME}:${SHA_TAG} -t ${IMAGE_NAME}:${LATEST_TAG} .
 
           # Verify images are built
-          Write-Host "Verifying local images:"
+          # Write-Host "Verifying local images:"
           docker images | Select-String -Pattern "ghcr.io/${{ github.repository_owner }}/smu"
 
       - name: Load image into Kind cluster
