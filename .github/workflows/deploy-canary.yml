@@ -15,16 +15,64 @@ jobs:
   deploy-canary:
     runs-on: self-hosted
     steps:
-      - name: Ensure Docker Service is Running
+      - name: Ensure Docker is running
         shell: powershell
         run: |
-          # Check if Docker is running
-          $dockerService = Get-Service -Name docker -ErrorAction SilentlyContinue
-          if ($dockerService.Status -ne "Running") {
-              Write-Host "Starting Docker service..."
-              Start-Service -Name docker
-          } else {
-              Write-Host "Docker service is already running."
+          Write-Host "Checking Docker status..."
+
+          # Try a simple Docker command to check if Docker is running
+          try {
+            docker info > $null 2>&1
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Docker is already running"
+              exit 0
+            }
+          } catch {
+            Write-Host "Docker appears to be stopped or not responding"
+          }
+
+          # First try Docker Desktop
+          try {
+            $dockerDesktop = Get-Process "Docker Desktop" -ErrorAction SilentlyContinue
+            if (-not $dockerDesktop) {
+              Write-Host "Starting Docker Desktop..."
+              Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+              
+              # Wait for Docker to start (up to 60 seconds)
+              $retries = 12
+              $retryDelay = 5
+              $dockerRunning = $false
+              
+              for ($i = 0; $i -lt $retries; $i++) {
+                Write-Host "Waiting for Docker to start... ($($i+1)/$retries)"
+                Start-Sleep -Seconds $retryDelay
+                
+                try {
+                  docker info > $null 2>&1
+                  if ($LASTEXITCODE -eq 0) {
+                    $dockerRunning = $true
+                    break
+                  }
+                } catch {
+                  # Continue waiting
+                }
+              }
+              
+              if ($dockerRunning) {
+                Write-Host "Docker started successfully"
+              } else {
+                Write-Host "Failed to start Docker automatically"
+                Write-Host "Please ensure Docker is installed and configured properly"
+                exit 1
+              }
+            } else {
+              Write-Host "Docker Desktop process is running but Docker daemon isn't responding"
+              Write-Host "It might be starting up or encountering issues"
+            }
+          } catch {
+            Write-Host "Failed to start Docker Desktop: $_"
+            Write-Host "Please ensure Docker is installed and configured properly"
+            exit 1
           }
 
       - name: Checkout repository
