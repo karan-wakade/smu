@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smu-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        environment: staging
+    spec:
+      containers:
+        - name: smu-container
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
