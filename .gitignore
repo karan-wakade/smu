@@ -24,6 +24,7 @@
 /src/frontend/yarn-error.log*
 
 .github-runner/
+.github/tools/kubectl-argo-rollouts-windows-amd64*
 
 # General ignores
 .DS_Store
