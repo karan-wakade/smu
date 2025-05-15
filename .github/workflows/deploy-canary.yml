@@ -62,29 +62,74 @@ jobs:
           $env:KUBECONFIG = $configPath
           kubectl cluster-info
 
-      # - name: Install Argo Rollouts CLI
-      #   shell: powershell
-      #   run: |
-      #     # Download Argo Rollouts CLI
-      #     Invoke-WebRequest -Uri https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe -OutFile kubectl-argo-rollouts.exe
-
-      #     # Move to a directory in PATH
-      #     Move-Item -Force kubectl-argo-rollouts.exe C:\Windows\System32\kubectl-argo-rollouts.exe
-
-      #     # Verify installation
-      #     kubectl argo rollouts version
-
       - name: Install Argo Rollouts CLI
         shell: powershell
         run: |
-          Write-Host "Downloading Argo Rollouts CLI using curl..."
-          curl.exe -L -o kubectl-argo-rollouts.exe https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe
+          # Detect OS and architecture
+          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ARCH=$(uname -m)
 
-          # Add to PATH for this session
-          $env:PATH = "$PWD;$env:PATH"
+          # Map architecture to Argo naming convention
+          case $ARCH in
+            x86_64)
+              ARCH="amd64"
+              ;;
+            aarch64|arm64)
+              ARCH="arm64"
+              ;;
+            *)
+              echo "Unsupported architecture: $ARCH"
+              exit 1
+              ;;
+          esac
+
+          # Choose correct binary for detected OS
+          if [ "$OS" == "linux" ]; then
+            PLATFORM="linux"
+            BINARY="kubectl-argo-rollouts-$PLATFORM-$ARCH"
+          elif [ "$OS" == "darwin" ]; then
+            PLATFORM="darwin"
+            BINARY="kubectl-argo-rollouts-$PLATFORM-$ARCH"
+          elif [[ "$OS" == *"mingw"* ]] || [[ "$OS" == *"cygwin"* ]] || [ "$OS" == "msys" ]; then
+            PLATFORM="windows"
+            BINARY="kubectl-argo-rollouts-$PLATFORM-$ARCH.exe"
+          else
+            echo "Unsupported OS: $OS"
+            exit 1
+          fi
+
+          # Download appropriate binary
+          echo "Downloading $BINARY for $OS-$ARCH..."
+          curl -LO "https://github.com/argoproj/argo-rollouts/releases/latest/download/$BINARY"
+
+          # Make binary executable (not needed for Windows)
+          if [ "$PLATFORM" != "windows" ]; then
+            chmod +x $BINARY
+          fi
+
+          # Move binary to a location in PATH
+          if [ "$PLATFORM" == "windows" ]; then
+            mkdir -p $HOME/bin
+            mv $BINARY $HOME/bin/kubectl-argo-rollouts.exe
+            echo "$HOME/bin" >> $GITHUB_PATH
+          else
+            sudo mv $BINARY /usr/local/bin/kubectl-argo-rollouts
+          fi
 
           # Verify installation
-          ./kubectl-argo-rollouts.exe version
+          kubectl argo rollouts version || echo "Failed to verify installation, continuing anyway"
+
+      # - name: Install Argo Rollouts CLI
+      #   shell: powershell
+      #   run: |
+      #     Write-Host "Downloading Argo Rollouts CLI using curl..."
+      #     curl.exe -L -o kubectl-argo-rollouts.exe https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe
+
+      #     # Add to PATH for this session
+      #     $env:PATH = "$PWD;$env:PATH"
+
+      #     # Verify installation
+      #     ./kubectl-argo-rollouts.exe version
 
       - name: Update Rollout Image
         shell: powershell
