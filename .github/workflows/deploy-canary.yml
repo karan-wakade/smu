@@ -170,37 +170,78 @@ jobs:
         run: |
           # Settings
           $overlay = if ("${{ github.ref_name }}" -eq "main") { "production" } else { "staging" }          Write-Host "Using overlay: $overlay"
+          $namespace = "${{ env.KUBERNETES_NAMESPACE }}"
+          $resourceName = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }          
+          # Inspect the existing file for debugging
+          Write-Host "Contents of original rollout.yaml:"
+          Get-Content -Path "kubernetes/overlays/$($overlay)/rollout.yaml"
 
-          # Convert rollout.yaml to deployment.yaml
-          Write-Host "Converting rollout.yaml to standard deployment.yaml..."
-          $rolloutContent = Get-Content -Path "kubernetes/overlays/$($overlay)/rollout.yaml" -Raw
+          # Create a simple deployment YAML directly instead of converting
+          $deploymentYaml = @"
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: $resourceName
+            namespace: $namespace
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: smu
+            template:
+              metadata:
+                labels:
+                  app: smu
+              spec:
+                containers:
+                - name: smu-container
+                  image: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+                  resources:
+                    requests:
+                      cpu: 100m
+                      memory: 64Mi
+                    limits:
+                      cpu: 200m
+                      memory: 128Mi
+                  ports:
+                  - containerPort: 8080
+            strategy:
+              type: RollingUpdate
+              rollingUpdate:
+                maxSurge: 1
+                maxUnavailable: 0
+          "@
 
-          # Replace Rollout specific parts with Deployment
-          $deploymentContent = $rolloutContent -replace "apiVersion: argoproj.io/v1alpha1", "apiVersion: apps/v1" `
-                                              -replace "kind: Rollout", "kind: Deployment"
+          # Create a service YAML to expose the deployment
+          $serviceYaml = @"
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: $resourceName-service
+            namespace: $namespace
+          spec:
+            selector:
+              app: smu
+            ports:
+            - port: 80
+              targetPort: 8080
+            type: ClusterIP
+          "@
 
-          # Remove the strategy section that's specific to Argo Rollouts
-          if ($deploymentContent -match "(?s)(\s+strategy:\s+canary:.*?)(\s+selector:|\s+template:)") {
-            $deploymentContent = $deploymentContent -replace "(?s)(\s+strategy:\s+canary:.*?)(\s+selector:|\s+template:)", "$2"
-          }
+          # Save the deployment and service files
+          $deploymentYaml | Out-File -FilePath "kubernetes/overlays/$($overlay)/deployment.yaml" -Encoding utf8
+          $serviceYaml | Out-File -FilePath "kubernetes/overlays/$($overlay)/service.yaml" -Encoding utf8
 
-          # Add a standard deployment strategy
-          if ($deploymentContent -match "(?s)(\s+selector:)") {
-            $deploymentContent = $deploymentContent -replace "(?s)(\s+selector:)", "  strategy:`n    type: RollingUpdate`n    rollingUpdate:`n      maxSurge: 1`n      maxUnavailable: 0`n$1"
-          }
-
-          # Save the deployment file
-          $deploymentContent | Out-File -FilePath "kubernetes/overlays/$($overlay)/deployment.yaml" -Encoding utf8
-
-          # Update kustomization.yaml to use deployment instead of rollout
+          # Update kustomization.yaml to use deployment and service
           $kustomizationContent = @"
           apiVersion: kustomize.config.k8s.io/v1beta1
           kind: Kustomization
 
           resources:
           - deployment.yaml
+          - service.yaml
 
-          namespace: ${{ env.KUBERNETES_NAMESPACE }}
+          namespace: $namespace
 
           labels:
           - pairs:
@@ -209,18 +250,26 @@ jobs:
           "@
           $kustomizationContent | Out-File -FilePath "kubernetes/overlays/$($overlay)/kustomization.yaml" -Encoding utf8
 
+          # Verify the files were created correctly
+          Write-Host "Contents of deployment.yaml:"
+          Get-Content -Path "kubernetes/overlays/$($overlay)/deployment.yaml"
+
+          Write-Host "Contents of service.yaml:"
+          Get-Content -Path "kubernetes/overlays/$($overlay)/service.yaml"
+
+          Write-Host "Contents of kustomization.yaml:"
+          Get-Content -Path "kubernetes/overlays/$($overlay)/kustomization.yaml"
+
           Write-Host "Converted to standard Kubernetes deployment"
 
       - name: Deploy and Update
         shell: powershell
         run: |
           # Settings
-          $overlay = if ("${{ github.ref_name }}" -eq "main") { "production" } else { "staging" }          
-          Write-Host "Using overlay: $overlay"
+          $overlay = if ("${{ github.ref_name }}" -eq "main") { "production" } else { "staging" }          Write-Host "Using overlay: $overlay"
           $namespace = "${{ env.KUBERNETES_NAMESPACE }}"
           $useStandardDeployment = "${{ env.USE_STANDARD_DEPLOYMENT }}" -eq "true"
-          $resourceName = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }          
-          $resourceType = if ($useStandardDeployment -eq $true) { "deployment" } else { "rollout" }
+          $resourceName = if ("${{ github.ref_name }}" -eq "main") { "production-rollout" } else { "staging-rollout" }          $resourceType = if ($useStandardDeployment) { "deployment" } else { "rollout" }
 
           # Apply with retries
           cd "kubernetes/overlays/$overlay"
@@ -233,6 +282,12 @@ jobs:
             Write-Host "Attempt $attempt of $maxAttempts"
             
             try {
+              # Validate kustomize output before applying
+              Write-Host "Validating kustomize output:"
+              $kustomizeOutput = kubectl kustomize .
+              $kustomizeOutput
+              
+              # Apply the resources
               kubectl apply -k . --timeout=30s
               $success = $true
               break
@@ -250,16 +305,34 @@ jobs:
             exit 1
           }
 
+          # Verify resources were created
+          Write-Host "Checking created resources in namespace $namespace:"
+          if ($useStandardDeployment) {
+            kubectl get deployments -n $namespace
+            kubectl get services -n $namespace
+          } else {
+            kubectl get rollouts.argoproj.io -n $namespace
+          }
+
           # Update the image based on deployment type
           Write-Host "Updating container image for $resourceType/$resourceName..."
 
           if ($useStandardDeployment) {
-            # Standard kubectl approach for Deployments
-            kubectl set image deployment/$resourceName smu-container=${{ env.IMAGE_NAME }}:${{ github.sha }} -n $namespace
+            # First check if the deployment exists
+            $deploymentExists = kubectl get deployment $resourceName -n $namespace --ignore-not-found
             
-            # Watch rollout status for Deployment
-            Write-Host "Watching deployment rollout status..."
-            kubectl rollout status deployment/$resourceName -n $namespace --timeout=2m
+            if ($deploymentExists) {
+              # Standard kubectl approach for Deployments
+              kubectl set image deployment/$resourceName smu-container=${{ env.IMAGE_NAME }}:${{ github.sha }} -n $namespace
+              
+              # Watch rollout status for Deployment
+              Write-Host "Watching deployment rollout status..."
+              kubectl rollout status deployment/$resourceName -n $namespace --timeout=2m
+            } else {
+              Write-Host "WARNING: Deployment $resourceName not found. The resources were applied but may have a different name."
+              Write-Host "Listing all deployments in namespace $namespace:"
+              kubectl get deployments -n $namespace
+            }
           } else {
             # Argo Rollouts approach
             kubectl argo rollouts set image $resourceName smu-container=${{ env.IMAGE_NAME }}:${{ github.sha }} -n $namespace
@@ -271,7 +344,6 @@ jobs:
             } catch {
               Write-Host "Warning: Couldn't watch rollout status: $_"
               Write-Host "Argo Rollouts status command timed out, but the update might still be in progress."
-              Write-Host "You can check the status later manually."
             }
           }
 
