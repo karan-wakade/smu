@@ -65,59 +65,33 @@ jobs:
       - name: Install Argo Rollouts CLI
         shell: powershell
         run: |
-          # Detect OS and architecture
-          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-          ARCH=$(uname -m)
+          # Create bin directory in user profile if it doesn't exist
+          $binDir = "$env:USERPROFILE\bin"
+          if (-not (Test-Path $binDir)) {
+              New-Item -ItemType Directory -Force -Path $binDir
+          }
 
-          # Map architecture to Argo naming convention
-          case $ARCH in
-            x86_64)
-              ARCH="amd64"
-              ;;
-            aarch64|arm64)
-              ARCH="arm64"
-              ;;
-            *)
-              echo "Unsupported architecture: $ARCH"
-              exit 1
-              ;;
-          esac
+          # Download Windows AMD64 version directly
+          $url = "https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64.exe"
+          $output = "$binDir\kubectl-argo-rollouts.exe"
 
-          # Choose correct binary for detected OS
-          if [ "$OS" == "linux" ]; then
-            PLATFORM="linux"
-            BINARY="kubectl-argo-rollouts-$PLATFORM-$ARCH"
-          elif [ "$OS" == "darwin" ]; then
-            PLATFORM="darwin"
-            BINARY="kubectl-argo-rollouts-$PLATFORM-$ARCH"
-          elif [[ "$OS" == *"mingw"* ]] || [[ "$OS" == *"cygwin"* ]] || [ "$OS" == "msys" ]; then
-            PLATFORM="windows"
-            BINARY="kubectl-argo-rollouts-$PLATFORM-$ARCH.exe"
-          else
-            echo "Unsupported OS: $OS"
-            exit 1
-          fi
+          Write-Host "Downloading Argo Rollouts CLI from $url"
+          Invoke-WebRequest -Uri $url -OutFile $output
 
-          # Download appropriate binary
-          echo "Downloading $BINARY for $OS-$ARCH..."
-          curl -LO "https://github.com/argoproj/argo-rollouts/releases/latest/download/$BINARY"
-
-          # Make binary executable (not needed for Windows)
-          if [ "$PLATFORM" != "windows" ]; then
-            chmod +x $BINARY
-          fi
-
-          # Move binary to a location in PATH
-          if [ "$PLATFORM" == "windows" ]; then
-            mkdir -p $HOME/bin
-            mv $BINARY $HOME/bin/kubectl-argo-rollouts.exe
-            echo "$HOME/bin" >> $GITHUB_PATH
-          else
-            sudo mv $BINARY /usr/local/bin/kubectl-argo-rollouts
-          fi
+          # Add to PATH for current job
+          Write-Host "Adding $binDir to PATH"
+          echo "$binDir" | Out-File -FilePath $env:GITHUB_PATH -Append
+          $env:PATH = "$binDir;$env:PATH"
 
           # Verify installation
-          kubectl argo rollouts version || echo "Failed to verify installation, continuing anyway"
+          try {
+              Write-Host "Verifying installation..."
+              & "$binDir\kubectl-argo-rollouts.exe" version
+              Write-Host "Argo Rollouts CLI installed successfully!"
+          } catch {
+              Write-Host "Failed to verify installation: $_"
+              Write-Host "Will continue anyway"
+          }
 
       # - name: Install Argo Rollouts CLI
       #   shell: powershell
