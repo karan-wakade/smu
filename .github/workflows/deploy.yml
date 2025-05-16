@@ -12,41 +12,61 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      # Replace Kind setup with Minikube
-      - name: Setup Minikube
-        uses: medyagh/setup-minikube@master
+      # Build and push Docker image to GHCR
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
         with:
-          minikube-version: 1.28.0
-          driver: docker
-          kubernetes-version: v1.26.3
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
       
-      # This step ensures kubectl uses the Minikube context
-      - name: Configure kubectl
-        run: |
-          minikube update-context
-          kubectl config use-context minikube
-          kubectl get pods -A
-      
-      # Build and push to GitHub Container Registry
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ghcr.io/karan-wakade/smu:latest
-          # Add authentication for GHCR here
-        env:
-          # GitHub Container Registry credentials
-          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+          tags: ghcr.io/${{ github.repository }}:latest
       
-      # Deploy to Minikube
-      - name: Deploy to Minikube
+      # Setup minikube with a more reliable configuration
+      - name: Setup Minikube
+        id: minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          minikube-version: 1.28.0
+          kubernetes-version: v1.23.0
+          driver: docker
+          start-args: --memory=2048mb --cpus=2
+          github-token: ${{ secrets.GHCR_PAT }}
+      
+      # Configure kubectl
+      - name: Configure kubectl
         run: |
-          # Pull the image to Minikube
-          minikube image pull ghcr.io/karan-wakade/smu:latest
-          # Apply Kubernetes manifests
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/ingress.yaml
-          # Wait for deployment to complete
-          kubectl rollout status deployment/smu-app
+          minikube update-context
+          kubectl get nodes
+          
+      # Pull the image into minikube
+      - name: Pull image into minikube
+        run: |
+          # Tell minikube to pull the image
+          minikube image pull ghcr.io/${{ github.repository }}:latest
+          
+      # Deploy to Kubernetes
+      - name: Deploy to Kubernetes
+        run: |
+          # Create namespace if it doesn't exist
+          kubectl create namespace smu --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Apply manifests
+          kubectl apply -f k8s/deployment.yaml -n smu
+          kubectl apply -f k8s/service.yaml -n smu
+          
+          # Wait for deployment
+          kubectl rollout status deployment/smu-app -n smu --timeout=120s
+          
+      # Optional - Setup port forwarding for testing
+      - name: Setup port forwarding
+        run: |
+          # Get NodePort and IP
+          export NODE_PORT=$(kubectl get -n smu -o jsonpath="{.spec.ports[0].nodePort}" services smu-app)
+          export MINIKUBE_IP=$(minikube ip)
+          echo "Application is available at http://$MINIKUBE_IP:$NODE_PORT"

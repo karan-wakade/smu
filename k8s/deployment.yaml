@@ -1,10 +1,9 @@
-# No changes needed unless you have Kind-specific configurations
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: smu-app
 spec:
-  replicas: 3
+  replicas: 1  # Using 1 replica for faster deployment in CI
   selector:
     matchLabels:
       app: smu

@@ -14,35 +14,38 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      # Replace Kind setup with Minikube
+      # Setup minikube with more reliable configuration
       - name: Setup Minikube
-        uses: medyagh/setup-minikube@master
+        uses: medyagh/setup-minikube@latest
         with:
           minikube-version: 1.28.0
+          kubernetes-version: v1.23.0
           driver: docker
-          kubernetes-version: v1.26.3
+          start-args: --memory=2048mb --cpus=2
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       
       # Configure kubectl
       - name: Configure kubectl
         run: |
           minikube update-context
-          kubectl config use-context minikube
+          kubectl get nodes
+      
+      # Pull the image
+      - name: Pull image into minikube
+        run: |
+          minikube image pull ghcr.io/${{ github.repository }}:latest
       
       # Deploy canary
       - name: Deploy Canary
         run: |
-          # Update canary percentage if needed
+          # Create namespace if it doesn't exist
+          kubectl create namespace smu --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Update canary percentage
           sed -i "s/canary_percentage:.*/canary_percentage: ${{ github.event.inputs.percentage }}/" k8s/canary/deployment.yaml
+          
           # Apply canary deployment
-          kubectl apply -f k8s/canary/deployment.yaml
+          kubectl apply -f k8s/canary/deployment.yaml -n smu
+          
           # Wait for deployment
-          kubectl rollout status deployment/smu-app-canary
-      
-      # Setup monitoring
-      - name: Setup Monitoring
-        run: |
-          # Install Prometheus and Grafana for monitoring
-          kubectl apply -f k8s/monitoring/prometheus.yaml
-          kubectl apply -f k8s/monitoring/grafana.yaml
-          # Wait for Grafana to be ready
-          kubectl rollout status deployment/grafana -n monitoring
+          kubectl rollout status deployment/smu-app-canary -n smu --timeout=120s
