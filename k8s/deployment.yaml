@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: smu-app
 spec:
-  replicas: 1  # Using 1 replica for faster deployment in CI
+  replicas: 1
   selector:
     matchLabels:
       app: smu
@@ -15,6 +15,20 @@ spec:
       containers:
       - name: smu-app
         image: ghcr.io/karan-wakade/smu:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
         ports:
         - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      # No pull secrets needed for local Minikube image
