@@ -44,30 +44,44 @@ jobs:
           minikube update-context
           kubectl get nodes
           
-      # Pull the image into minikube
-      - name: Pull image into minikube
+       # Fix the problematic image pull command
+      - name: Load Docker image into Minikube
         run: |
-          # Tell minikube to pull the image
-          minikube image pull ghcr.io/${{ github.repository }}:latest
+            echo "Loading image from GHCR..."
+            REPO="${{ github.repository }}"
+            # Pull from GHCR
+            docker pull "ghcr.io/${REPO}:latest"
+            # Save to a local tar file
+            docker save "ghcr.io/${REPO}:latest" > image.tar
+            # Load into Minikube
+            minikube image load image.tar
+            # Verify the image is in Minikube
+            minikube ssh "docker images | grep ${REPO##*/}"
           
-          - name: Deploy to Kubernetes
-          run: |
-            # Create namespace
-            kubectl create namespace smu --dry-run=client -o yaml | kubectl apply -f -
+    #   # Pull the image into minikube
+    #   - name: Pull image into minikube
+    #     run: |
+    #       # Tell minikube to pull the image
+    #       minikube image pull ghcr.io/${{ github.repository }}:latest
+          
+    #       - name: Deploy to Kubernetes
+    #       run: |
+    #         # Create namespace
+    #         kubectl create namespace smu --dry-run=client -o yaml | kubectl apply -f -
             
-            # Update deployment to use imagePullPolicy: IfNotPresent
-            sed -i 's/imagePullPolicy: Always/imagePullPolicy: IfNotPresent/g' k8s/deployment.yaml
+    #         # Update deployment to use imagePullPolicy: IfNotPresent
+    #         sed -i 's/imagePullPolicy: Always/imagePullPolicy: IfNotPresent/g' k8s/deployment.yaml
             
-            # Apply manifests
-            kubectl apply -f k8s/deployment.yaml -n smu
-            kubectl apply -f k8s/service.yaml -n smu
+    #         # Apply manifests
+    #         kubectl apply -f k8s/deployment.yaml -n smu
+    #         kubectl apply -f k8s/service.yaml -n smu
             
-            # Show deployment right after applying
-            echo "Initial deployment status:"
-            kubectl get deployments -n smu
+    #         # Show deployment right after applying
+    #         echo "Initial deployment status:"
+    #         kubectl get deployments -n smu
             
-            # Wait with increased timeout
-            kubectl rollout status deployment/smu-app -n smu --timeout=300s
+    #         # Wait with increased timeout
+    #         kubectl rollout status deployment/smu-app -n smu --timeout=300s
         
       # Optional - Setup port forwarding for testing
       - name: Setup port forwarding
